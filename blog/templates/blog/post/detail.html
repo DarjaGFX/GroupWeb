@@ -1,0 +1,15 @@
+{% extends "blog/base.html" %}
+
+{% block title %}{{post.Title}}{% endblock %}
+
+{% block content %}
+        <h1> {{post.Title}} </h1>
+        <p class="post-body"> {{post.Text}} </p>	
+        <p class="date">published {{post.publish}} by {{post.author}} </p>
+        {% for com in comments%}
+          	<div>
+            	<p>Commented by {{com.name}} on {{com.created}}</p>
+          		<p>{{com.Text}}</p>
+  			</div>	
+    	{% endfor %}
+{% endblock %}

@@ -1,0 +1,13 @@
+
+{% extends "blog/base.html" %}
+
+{% block title %}وبلاگ{% endblock %}
+
+{% block content %}
+        <h1>ناربلاگ</h1>
+        {%for post in posts%}
+             <h2> <a href="{{post.post_id}}"> {{post.Title}} </a> </h2>
+             <p class="date">published {{post.publish}} by {{post.author}} </p>
+             {{post.body|truncatewords:30|linebreaks}}
+        {%endfor%}
+{% endblock %}
