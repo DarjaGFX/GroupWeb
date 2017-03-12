@@ -9,6 +9,12 @@ class NarGroups(models.Model):
     def __str__(self):
         return self.Name
 
+class Token(models.Model):
+    token = models.CharField(max_length = 50)
+    # user  = models.OneToOneField(members , on_delete = models.CASCADE)
+    def __str__(self):
+        return "{}_token".format(self.user)
+
 class members(models.Model):
     Group           = models.ForeignKey(NarGroups)
     email           = models.EmailField(null = False)
@@ -22,7 +28,7 @@ class Post(models.Model):
     status      = (('draft', 'Draft'),('published','Published'))
     post_id     = models.AutoField(primary_key=True)
     post_status = models.CharField(max_length = 10 , choices = status , default ='draft')
-    author      = models.ForeignKey(members , related_name = 'blog_posts')
+    author      = models.ForeignKey(members , related_name = 'blog_posts', on_delete = models.CASCADE)
     Title       = models.CharField(max_length = 250)
     slug        = models.SlugField(max_length = 250 , unique_for_date='publish')
     Text        = models.TextField()

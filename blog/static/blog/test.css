@@ -1,0 +1,43 @@
+
+
+#sidebar{
+	float:left;
+	width:350px;
+	margin:10px;
+	padding-bottom: 10px;
+	background:#EEE;
+	color:#DAD;
+	font-weight: bold;
+	border: 3px solid #444;
+	border-radius: 10px;
+	margin-top: 2px;
+	padding-left: 8px;
+	}
+#sidebar #title{
+	line-height: 30px;
+	padding: 0 0 0 15px;
+	margin-bottom: 10px;
+	font-size: 20px;
+	font-weight: bold;
+	background: url(images/title.png) repeat-x;
+	}
+#sidebar ul{
+	list-style: none;
+	width:350px;
+	}
+#sidebar li{
+	padding:5px 5px;
+	font-size: 15px;
+	
+	}
+	#sidebar p{
+
+		background-color: lightblue;
+		padding:auto;
+		width:70%;
+		float:center;
+		font-size: 12px;
+	}
+#sidebar a{
+	color:#000;
+	}
