@@ -11,7 +11,7 @@ class NarGroups(models.Model):
 
 class Token(models.Model):
     token = models.CharField(max_length = 50)
-    # user  = models.OneToOneField(members , on_delete = models.CASCADE)
+    user  = models.OneToOneField(members , on_delete = models.CASCADE)
     def __str__(self):
         return "{}_token".format(self.user)
 
