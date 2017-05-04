@@ -4,8 +4,8 @@ import datetime
 from django.db import models
 
 class NarGroups(models.Model):
-    Name = models.CharField(max_length=150 , unique = True)
-    description = models.TextField()
+    Name = models.CharField(max_length=150 , unique = True , verbose_name = "نام" )
+    description = models.TextField(verbose_name = "توضیحات")
     def __str__(self):
         return self.Name
 
@@ -16,23 +16,23 @@ class Token(models.Model):
         return "{}_token".format(self.user)
 
 class members(models.Model):
-    Group           = models.ForeignKey(NarGroups)
-    email           = models.EmailField(null = False)
-    userName        = models.CharField(max_length=32 , unique = True, null = False)
-    password        = models.CharField(max_length=32 , null = False)
-    DisplayUserName = models.CharField(max_length = 15 , null = False)
+    Group           = models.ForeignKey(NarGroups , verbose_name = "گروه")
+    email           = models.EmailField(null = False , verbose_name = "ایمیل")
+    userName        = models.CharField(max_length=32 , unique = True, null = False , verbose_name = "نام کاربری")
+    password        = models.CharField(max_length=32 , null = False , verbose_name = "کلمه عبور")
+    DisplayUserName = models.CharField(max_length = 15 , null = False , verbose_name = "نام کاربری نمایشی")
     def __str__(self):
         return self.DisplayUserName
 
 class Post(models.Model):
     status      = (('draft', 'Draft'),('published','Published'))
     post_id     = models.AutoField(primary_key=True)
-    post_status = models.CharField(max_length = 10 , choices = status , default ='draft')
-    author      = models.ForeignKey(members , related_name = 'blog_posts', on_delete = models.CASCADE)
-    Title       = models.CharField(max_length = 250)
-    slug        = models.SlugField(max_length = 250 , unique_for_date='publish')
-    Text        = models.TextField()
-    publish     = models.DateTimeField(default = datetime.datetime.now)
+    post_status = models.CharField(max_length = 10 , choices = status , default ='draft', verbose_name = "وضعیت")
+    author      = models.ForeignKey(members , related_name = 'blog_posts', on_delete = models.CASCADE , verbose_name = "نویسنده")
+    Title       = models.CharField(max_length = 250, verbose_name = "عنوان")
+    slug        = models.SlugField(max_length = 250 , unique_for_date='publish',verbose_name = "آدرس")
+    Text        = models.TextField(verbose_name = "متن")
+    publish     = models.DateTimeField(default = datetime.datetime.now, verbose_name = "تاریخ انتشار")
     created     = models.DateTimeField(auto_now_add = True)
     updated     = models.DateTimeField(auto_now = True)
     like        = models.BigIntegerField(default=0)

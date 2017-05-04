@@ -7,7 +7,7 @@
 				<div id="title">list</div>
 					<ul>
 							{%for post in posts%}
-									<li><h2> <a href="{{post.slug}}"> {{post.Title}} </a> </h2>
+									<li><h2> <a href="{{post.post_id}}"> {{post.Title}} </a> </h2>
 									<p class="date">published {{post.publish}} by {{post.author}}</p><a href="#">[ادامه مطلب]</a></li>
 									{{post.body|truncatewords:30|linebreaks}}
 						 	{%endfor%}

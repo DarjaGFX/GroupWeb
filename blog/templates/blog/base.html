@@ -9,8 +9,9 @@
   </head>
 
   <body>
-      <div>
+      <div style="text-align: left; float: right; direction:rtl;">
           {% block content %}
+            {{ form.as_p }}
           {% endblock %}
       </div>
   </body>
