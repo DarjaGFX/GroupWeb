@@ -2,12 +2,17 @@ from django import forms
 
 from .models import *
 
-class Group(forms.ModelForm):
+class form_Group(forms.ModelForm):
     class Meta:
-        model = NarGroups
+        model  = NarGroups
         fields = ["Name","description"]
 
-class SignUp(forms.ModelForm):
+class form_SignUp(forms.ModelForm):
     class Meta:
-        model = members
+        model  = members
         fields = ["Group","email","userName","password","DisplayUserName"]
+
+class form_comment(forms.ModelForm):
+    class Meta:
+        model  = Comment
+        fields = ["name","email","Text"]
