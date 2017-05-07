@@ -8,9 +8,10 @@
 	        <p class="post-body"> {{post.Text}} </p>	
         </div>
         <p class="date">published {{post.publish}} by {{post.author}} </p>
-        
-		{{form.as_p}}
-
+        <form method="POST" action=""> {% csrf_token %}
+			{{form.as_p}}
+			<input type="submit" value="ارسال" />
+        </form>
 		{% for com in comments%}
           	<div>
             	<p>Commented by {{com.name}} on {{com.created}}</p>

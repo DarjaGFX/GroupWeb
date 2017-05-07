@@ -50,7 +50,7 @@ class Comment(models.Model):
     Text    = models.TextField(verbose_name = "متن")
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-    active  = models.BooleanField(default=True)
+    active  = models.BooleanField(default=False)
     like    = models.BigIntegerField(default=0)
     disLike = models.BigIntegerField(default=0)
 

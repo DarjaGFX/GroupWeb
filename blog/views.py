@@ -18,5 +18,11 @@ def addGroup(request):
 def post_detail(request,idd):
     post = Post.objects.filter(post_id = idd)
     comments = Comment.objects.filter(active = True , postID = post[0].post_id )
-    form  = form_comment()
+    form  = form_comment(request.POST or None)
+    if form.is_valid():
+        name = form.cleaned_data['name']
+        email = form.cleaned_data['email']
+        text = form.cleaned_data['Text']
+        postid = Post.objects.filter(post_id = idd)
+        new_comment , created = Comment.objects.get_or_create(email=email , name = name , Text = text , postID = postid[0] )
     return render(request,'blog/post/detail.html',{'post':post[0],'comments':comments , 'form':form})
