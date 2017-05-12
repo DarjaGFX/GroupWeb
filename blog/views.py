@@ -34,7 +34,7 @@ def post_detail(request,idd):
 def Narlogin(request):
     UserName = request.POST['nuser']
     PassWord = request.POST['npass']
-    user = members.objects.filter(userName= UserName ,password = PassWord)
+    user = members.objects.filter(userName= UserName.lowe() ,password = PassWord)
     if len(user)>0:
         return JsonResponse({'Status':'OK','Token':user[0].Token, },encoder=JSONEncoder)
     else:
@@ -50,11 +50,11 @@ def NarSignUp(request):
     #TODO: check if any empty parameters passed, return Error!
     ngroup = NarGroups.objects.filter(Name = grp)
 
-    user = members.objects.filter(userName= UserName)
+    user = members.objects.filter(userName= UserName.lower())
     if len(user)>0:
         return JsonResponse({'Status':'FAILED','ERROR':'0x0002', },encoder=JSONEncoder)
     else:
-        new_member , created = members.objects.get_or_create(email=email , userName = UserName , password = PassWord , DisplayUserName = dispusn , Group = ngroup[0] )
+        new_member , created = members.objects.get_or_create(email=email , userName = UserName.lower() , password = PassWord , DisplayUserName = dispusn , Group = ngroup[0] )
         if created:
             return JsonResponse({'Status':'OK','Message':'Confirm Email address', },encoder=JSONEncoder)
         else:
