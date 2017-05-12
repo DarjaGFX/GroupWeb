@@ -47,6 +47,7 @@ def NarSignUp(request):
     email    = request.POST['nemail']
     dispusn  = request.POST['ndispn']
     grp      = request.POST['ngroup']
+    #TODO: check if any empty parameters passed, return Error!
     ngroup = NarGroups.objects.filter(Name = grp)
 
     user = members.objects.filter(userName= UserName)
@@ -55,6 +56,6 @@ def NarSignUp(request):
     else:
         new_member , created = members.objects.get_or_create(email=email , userName = UserName , password = PassWord , DisplayUserName = dispusn , Group = ngroup[0] )
         if created:
-            return JsonResponse({'Status':'FAILED','ERROR':'0x0001' },encoder=JSONEncoder)
+            return JsonResponse({'Status':'OK','Message':'Confirm Email address', },encoder=JSONEncoder)
         else:
             return JsonResponse({'Status':'FAILED','Message':'unexpected error accured!',}, encoder=JSONEncoder)
