@@ -34,7 +34,7 @@ def post_detail(request,idd):
 def Narlogin(request):
     UserName = request.POST['nuser']
     PassWord = request.POST['npass']
-    user = members.objects.filter(userName= UserName.lowe() ,password = PassWord)
+    user = members.objects.filter(userName= UserName.lower() ,password = PassWord)
     if len(user)>0:
         return JsonResponse({'Status':'OK','Token':user[0].Token, },encoder=JSONEncoder)
     else:
