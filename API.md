@@ -1,11 +1,11 @@
 Signup{
     POST
-    input:
-        nuser   : string,
-        npass   : string,
-        nemail  : string,
-        ndispn  : string,
-        ngroup  : string,
+    input(string):
+        nuser,
+        npass,
+        nemail,
+        ndispn,
+        ngroup,
     
     output(JSON):
         Status,
@@ -15,9 +15,9 @@ Signup{
 
 Login{
     POST
-    input:
-        nuser:string,
-        npass:string,
+    input(string):
+        nuser,
+        npass,
     
     output(JSON):
         Status,
