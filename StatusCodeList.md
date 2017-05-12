@@ -1,3 +1,7 @@
+0x0000{
+	"OK"
+}
+
 0x0001{
 	"username and/or password incorrect"
 }

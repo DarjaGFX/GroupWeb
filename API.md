@@ -12,7 +12,6 @@
     output(JSON):
         Status,
         Message (optional),
-        Error (optional),
 }
 
 #Login{
@@ -25,6 +24,5 @@
     
     output(JSON):
         Status,
-        Error (optional),
         Token (optional),
 }
