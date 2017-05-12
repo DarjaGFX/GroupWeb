@@ -1,4 +1,4 @@
-Signup{
+#Signup{
     POST
     input(string):
         nuser,
@@ -13,7 +13,7 @@ Signup{
         Error (optional),
 }
 
-Login{
+#Login{
     POST
     input(string):
         nuser,
