@@ -1,5 +1,5 @@
 #Signup{
-    {{Domain}}/blog/signup/
+    {{Domain}}/signup/
     POST
     
     input(string):
@@ -15,7 +15,7 @@
 }
 
 #Login{
-    {{Domain}}/blog/login/
+    {{Domain}}/login/
     POST
     
     input(string):

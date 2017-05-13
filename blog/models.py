@@ -9,13 +9,8 @@ class NarGroups(models.Model):
     def __str__(self):
         return self.Name
 
-class Token(models.Model):
-    token = models.CharField(max_length = 50)
-    #user  = models.OneToOneField(members , on_delete = models.CASCADE)
-    def __str__(self):
-        return "{}_token".format(self.user)
-
 class members(models.Model):
+    Token           = models.CharField(max_length=20 , default = datetime.datetime.now )
     Group           = models.ForeignKey(NarGroups , verbose_name = "گروه")
     email           = models.EmailField(null = False , verbose_name = "ایمیل")
     userName        = models.CharField(max_length=32 , unique = True, null = False , verbose_name = "نام کاربری")
@@ -23,6 +18,8 @@ class members(models.Model):
     DisplayUserName = models.CharField(max_length = 15 , null = False , verbose_name = "نام کاربری نمایشی")
     def __str__(self):
         return self.DisplayUserName
+    class Meta:
+        unique_together = ("userName", "Token",)
 
 class Post(models.Model):
     status      = (('draft', 'Draft'),('published','Published'))

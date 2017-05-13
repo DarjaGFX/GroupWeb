@@ -4,6 +4,15 @@ from .forms import *
 from django.http import JsonResponse 
 from json import JSONEncoder
 from django.views.decorators.csrf import csrf_exempt
+import uuid
+
+def CreateToken():
+    newToken = str(uuid.uuid4())[:23].replace('-','').lower()
+    try:
+        tokenExists = members.objects.get(Token = newToken)
+        CreateToken()
+    except:
+        return newToken
 
 def post_list(request):
     posts = Post.objects.filter(post_status = "published")
@@ -54,7 +63,7 @@ def NarSignUp(request):
     if len(user)>0:
         return JsonResponse({'Status':'FAILED','ERROR':'0x0002', },encoder=JSONEncoder)
     else:
-        new_member , created = members.objects.get_or_create(email=email , userName = UserName.lower() , password = PassWord , DisplayUserName = dispusn , Group = ngroup[0] )
+        new_member , created = members.objects.get_or_create(email=email , userName = UserName.lower() , password = PassWord , DisplayUserName = dispusn , Group = ngroup[0] , Token = CreateToken() )
         if created:
             return JsonResponse({'Status':'OK','Message':'Confirm Email address', },encoder=JSONEncoder)
         else:
