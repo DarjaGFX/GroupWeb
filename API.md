@@ -1,5 +1,5 @@
-#Signup{
-    {{Domain}}/signup/
+# Signup{
+    {{Domain}}/App/signup/
     POST
     
     input(string):
@@ -14,8 +14,8 @@
         Message (optional),
 }
 
-#Login{
-    {{Domain}}/login/
+# Login{
+    {{Domain}}/App/login/
     POST
     
     input(string):
@@ -25,4 +25,17 @@
     output(JSON):
         Status,
         Token (optional),
+}
+
+# Get Comments of Specific Post{
+    {{Domain}}/App/postComments/
+    POST
+
+    input(string):
+        id  #id of Post to get comments,
+    
+    output(JSON): #this could return a list of output  
+        Name,   
+        Text,
+        Time,
 }

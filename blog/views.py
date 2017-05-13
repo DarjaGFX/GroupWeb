@@ -68,3 +68,19 @@ def NarSignUp(request):
             return JsonResponse({'Status':'OK','Message':'Confirm Email address', },encoder=JSONEncoder)
         else:
             return JsonResponse({'Status':'FAILED','Message':'unexpected error accured!',}, encoder=JSONEncoder)
+
+
+@csrf_exempt
+def loadComment(request):
+    postid = request.POST['id']
+    post = Post.objects.get(post_id = postid)
+    comments = Comment.objects.filter(postID = post)
+    if len(comments)>0:
+        result = dict()
+        i = 1
+        for cm in comments:
+            response = dict()
+            response.update({'Name' : cm.name , 'Text' : cm.Text , 'Time' : str(cm.created.year)+'/'+str(cm.created.month)+'/'+str(cm.created.day) }) 
+            result.update({i:response})
+            i+=1
+        return JsonResponse(result ,encoder=JSONEncoder)
