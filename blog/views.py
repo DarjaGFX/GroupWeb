@@ -41,6 +41,13 @@ def post_detail(request,idd):
         new_comment , created = Comment.objects.get_or_create(email=email , name = name , Text = text , postID = postid[0] )
     return render(request,'blog/post/detail.html',{'post':post[0],'comments':comments , 'form':form})
 
+
+
+# ########## #
+# App Views# #
+# ########## #
+
+
 @csrf_exempt
 def Narlogin(request):
     UserName = request.POST['nuser']
@@ -88,3 +95,12 @@ def loadComment(request):
             result.update({i:response})
             i+=1
         return JsonResponse(result ,encoder=JSONEncoder)
+
+def fetchGroupNames(request):
+    gp = NarGroups.objects.all()
+    result = dict()
+    i = 1
+    for g in gp:
+        result.update({i : g.Name })
+        i+=1
+    return JsonResponse(result ,encoder=JSONEncoder)

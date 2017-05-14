@@ -39,3 +39,10 @@
         Text,
         Time,
 }
+
+# fetch Group names{
+    {{Domain}}/App/GroupNames/
+
+    output(JSON):
+        Name,
+}
