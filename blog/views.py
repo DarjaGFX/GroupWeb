@@ -1,4 +1,5 @@
-#*-unicode-UTF8-*#
+# -*- coding: utf-8 -*-
+
 from django.shortcuts import render, get_object_or_404
 from .models import *
 from .forms import *
@@ -84,8 +85,8 @@ def NarSignUp(request):
 def loadComment(request):
     request.encoding = 'koi8-r'
     postid = request.POST['id']
-    post = Post.objects.get(post_id = postid)
-    comments = Comment.objects.filter(postID = post , active = True )
+    post = Post.objects.filter(post_id = postid)
+    comments = Comment.objects.filter(postID = post[0] , active = True )
     if len(comments)>0:
         result = dict()
         i = 1
@@ -96,11 +97,14 @@ def loadComment(request):
             i+=1
         return JsonResponse(result ,encoder=JSONEncoder)
 
+
+@csrf_exempt
 def fetchGroupNames(request):
     gp = NarGroups.objects.all()
-    result = dict()
-    i = 1
-    for g in gp:
-        result.update({i : g.Name })
-        i+=1
-    return JsonResponse(result ,encoder=JSONEncoder)
+    if len(gp)>0:
+        result = dict()
+        i = 1
+        for g in gp:
+            result.update({ i : g.Name })
+            i+=1
+        return JsonResponse(result ,encoder=JSONEncoder)
