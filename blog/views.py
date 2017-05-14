@@ -55,9 +55,9 @@ def Narlogin(request):
     PassWord = request.POST['npass']
     user = members.objects.filter(userName= UserName.lower() ,password = PassWord)
     if len(user)>0:
-        return JsonResponse({'Status':'OK','Token':user[0].Token, },encoder=JSONEncoder)
+        return JsonResponse({'Status':'0x0000','Token':user[0].Token, },encoder=JSONEncoder)
     else:
-        return JsonResponse({'Status':'FAILED','ERROR':'0x0001' },encoder=JSONEncoder)
+        return JsonResponse({'Status':'0x0001' },encoder=JSONEncoder)
 
 @csrf_exempt
 @require_POST
@@ -72,13 +72,13 @@ def NarSignUp(request):
 
     user = members.objects.filter(userName= UserName.lower())
     if len(user)>0:
-        return JsonResponse({'Status':'FAILED','ERROR':'0x0002', },encoder=JSONEncoder)
+        return JsonResponse({'Status':'0x0002',},encoder=JSONEncoder)
     else:
         new_member , created = members.objects.get_or_create(email=email , userName = UserName.lower() , password = PassWord , DisplayUserName = dispusn , Group = ngroup[0] , Token = CreateToken() )
         if created:
-            return JsonResponse({'Status':'OK','Message':'Confirm Email address', },encoder=JSONEncoder)
+            return JsonResponse({'Status':'0x0000',},encoder=JSONEncoder)
         else:
-            return JsonResponse({'Status':'FAILED','Message':'unexpected error accured!',}, encoder=JSONEncoder)
+            return JsonResponse({'Status':'0x0003',}, encoder=JSONEncoder)
 
 
 @csrf_exempt
