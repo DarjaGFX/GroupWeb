@@ -1,3 +1,4 @@
+#*-unicode-UTF8-*#
 from django.shortcuts import render, get_object_or_404
 from .models import *
 from .forms import *
@@ -5,6 +6,7 @@ from django.http import JsonResponse
 from json import JSONEncoder
 from django.views.decorators.csrf import csrf_exempt
 import uuid
+from django.views.decorators.http import require_POST
 
 def CreateToken():
     newToken = str(uuid.uuid4())[:23].replace('-','').lower()
@@ -50,6 +52,7 @@ def Narlogin(request):
         return JsonResponse({'Status':'FAILED','ERROR':'0x0001' },encoder=JSONEncoder)
 
 @csrf_exempt
+@require_POST
 def NarSignUp(request):
     UserName = request.POST['nuser']
     PassWord = request.POST['npass']
@@ -72,9 +75,10 @@ def NarSignUp(request):
 
 @csrf_exempt
 def loadComment(request):
+    request.encoding = 'koi8-r'
     postid = request.POST['id']
     post = Post.objects.get(post_id = postid)
-    comments = Comment.objects.filter(postID = post)
+    comments = Comment.objects.filter(postID = post , active = True )
     if len(comments)>0:
         result = dict()
         i = 1
