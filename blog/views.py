@@ -3,7 +3,7 @@
 from django.shortcuts import render, get_object_or_404
 from .models import *
 from .forms import *
-from django.http import JsonResponse 
+from django.http import JsonResponse , HttpResponseRedirect
 from json import JSONEncoder
 from django.views.decorators.csrf import csrf_exempt
 import uuid
@@ -25,7 +25,7 @@ def singup(request):
     form = form_SignUp()
     return render(request , "blog/base.html" , {"form":form})
 
-def addGroup(request):
+def addGroupform(request):
     form = form_Group()
     # if form.is_valid():
     return render(request , "blog/base.html" , {"form":form})
@@ -116,3 +116,38 @@ def fetchGroupNames(request):
             gps.append(tmp)
         result.update({'Groups':gps})
         return JsonResponse(result ,encoder=JSONEncoder)
+
+
+@csrf_exempt
+def addGroup(request):
+    result = dict()
+    name = request.POST['Name'] 
+    desc = request.POST['description']
+    if name is not "" and desc is not "":
+        result.update({'Name': request.POST['Name']})
+        img = UploadlogoForm(request.POST, request.FILES)       
+        domain = ""
+        if img.is_valid():
+            img.save()  
+            domain = request.get_host()
+            domain += "/blog/static/media/GroupLogo/" + str(request.FILES['pic'])
+            #tmp = NarGroups.objects.filter(Name = request.POST['Name'])
+            #tmp[0].logo = domain
+            #tmp[0].save()
+            result.update({'img_address':domain})
+        NarGroups.objects.create(Name = name , description = desc , logo = domain)
+    return JsonResponse(result ,encoder=JSONEncoder)
+        
+
+@csrf_exempt
+def home(request):
+    result = dict()
+    if request.method=="POST":
+        img = UploadForm(request.POST, request.FILES)       
+        if img.is_valid():
+            img.save()  
+        result.update({'img_address':img.Meta})
+    else:
+        img=UploadForm()
+        result.update({'Status':'Error'})
+    return JsonResponse(result ,encoder=JSONEncoder)

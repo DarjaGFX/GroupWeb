@@ -2,10 +2,21 @@ from __future__ import unicode_literals
 from django.contrib.auth.models import User , Group
 import datetime
 from django.db import models
+from django.forms import ModelForm
+
+class GroupLogo(models.Model):
+    pic = models.ImageField("Image", upload_to="blog/static/media/GroupLogo/" )    
+    upload_date=models.DateTimeField(auto_now_add =True)
+
+class UploadlogoForm(ModelForm):
+    class Meta:
+        model = GroupLogo
+        fields = ['pic']
 
 class NarGroups(models.Model):
     Name = models.CharField(max_length=150 , unique = True , verbose_name = "نام" )
     description = models.TextField(verbose_name = "توضیحات")
+    logo = models.TextField(null = True)
     def __str__(self):
         return self.Name
 
