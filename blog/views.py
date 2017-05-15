@@ -82,20 +82,26 @@ def NarSignUp(request):
 
 
 @csrf_exempt
-def loadComment(request):
+def PostDetailView(request):
     request.encoding = 'koi8-r'
     postid = request.POST['id']
+
     post = Post.objects.filter(post_id = postid)
+    result = dict()
+    tmp = dict()
+    tmp.update({'Title':post[0].Title , 'author' : post[0].author.DisplayUserName , 'Text':post[0].Text , 'Time': str(post[0].publish.year)+'/'+str(post[0].publish.month)+'/'+str(post[0].publish.day) })
+    result.update({'Post':tmp})
+
     comments = Comment.objects.filter(postID = post[0] , active = True )
     if len(comments)>0:
-        result = dict()
         coms = []
         for cm in comments:
             response = dict()
             response.update({'Name' : cm.name , 'Text' : cm.Text , 'Time' : str(cm.created.year)+'/'+str(cm.created.month)+'/'+str(cm.created.day) }) 
             coms.append(response)   
         result.update({'Comments':coms})
-        return JsonResponse(result ,encoder=JSONEncoder)
+    return JsonResponse(result ,encoder=JSONEncoder)
+
 
 
 @csrf_exempt

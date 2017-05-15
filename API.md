@@ -27,17 +27,26 @@
         Token (optional),
 }
 
-# Get Comments of Specific Post{
-    {{Domain}}/App/postComments/
+# Get Post and its Comments{
+    {{Domain}}App/PostDetailView/
     POST
 
     input(string):
         id  #id of Post to get comments,
     
     output(JSON): #this could return a list of output  
-        Name,   
-        Text,
-        Time,
+        
+        Post{
+            Title,
+            author,
+            Text,
+            Time,
+        }
+        Comments{    
+            Name,   
+            Text,
+            Time,
+        }
 }
 
 # fetch Group names{

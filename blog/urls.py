@@ -12,7 +12,7 @@ urlpatterns = [
     # Remote App Views!#
     url(r'^App/signup/', views.NarSignUp , name = 'NarSignUp'),
     url(r'^App/login/', views.Narlogin , name = 'Narlogin'),
-    url(r'^App/postComments/', views.loadComment , name = 'loadComment'),
+    url(r'^App/PostDetailView/', views.PostDetailView , name = 'PostDetailView'),
     url(r'^App/GroupNames/', views.fetchGroupNames , name = 'fetchGroupNames'),
     
     
