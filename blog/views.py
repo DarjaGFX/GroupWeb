@@ -89,12 +89,12 @@ def loadComment(request):
     comments = Comment.objects.filter(postID = post[0] , active = True )
     if len(comments)>0:
         result = dict()
-        i = 1
+        coms = []
         for cm in comments:
             response = dict()
             response.update({'Name' : cm.name , 'Text' : cm.Text , 'Time' : str(cm.created.year)+'/'+str(cm.created.month)+'/'+str(cm.created.day) }) 
-            result.update({i:response})
-            i+=1
+            coms.append(response)   
+        result.update({'Comments':coms})
         return JsonResponse(result ,encoder=JSONEncoder)
 
 
@@ -103,8 +103,10 @@ def fetchGroupNames(request):
     gp = NarGroups.objects.all()
     if len(gp)>0:
         result = dict()
-        i = 1
+        gps = []
         for g in gp:
-            result.update({ i : g.Name })
-            i+=1
+            tmp = dict()
+            tmp.update({ 'Name' : g.Name })
+            gps.append(tmp)
+        result.update({'Groups':gps})
         return JsonResponse(result ,encoder=JSONEncoder)
