@@ -14,7 +14,7 @@ class UploadlogoForm(ModelForm):
         fields = ['pic']
 
 class NarGroups(models.Model):
-    Name = models.CharField(max_length=150 , unique = True , verbose_name = "نام" )
+    Name = models.CharField(max_length=150 , null = False , unique = True , verbose_name = "نام" )
     description = models.TextField(verbose_name = "توضیحات")
     logo = models.TextField(null = True)
     def __str__(self):

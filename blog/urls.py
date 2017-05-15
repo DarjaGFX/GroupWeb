@@ -15,7 +15,6 @@ urlpatterns = [
     url(r'^App/PostDetailView/', views.PostDetailView , name = 'PostDetailView'),
     url(r'^App/Group/load/', views.fetchGroupNames , name = 'fetchGroupNames'),
     url(r'^App/Group/add/', views.addGroup , name = 'addGroup'),
-    url(r'^App/upload/', views.home , name = 'home'),
     
     
     #url(r'^add/group/', views.addGroup , name = 'addGroup'),

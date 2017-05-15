@@ -11,7 +11,6 @@
     
     output(JSON):
         Status,
-        Message (optional),
 }
 
 # Login{
@@ -50,8 +49,21 @@
 }
 
 # fetch Group names{
-    {{Domain}}/App/GroupNames/
+    {{Domain}}App/Group/load/
 
     output(JSON):
         Name,
+        logo,
+}
+
+# Add new Group{
+    {{Domain}}App/Group/add/
+    
+    input(image , string):
+        pic,
+        Name,
+        description,
+
+    output(JSON):
+        Status,
 }

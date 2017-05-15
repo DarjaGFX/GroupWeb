@@ -112,7 +112,7 @@ def fetchGroupNames(request):
         gps = []
         for g in gp:
             tmp = dict()
-            tmp.update({ 'Name' : g.Name })
+            tmp.update({ 'Name' : g.Name , 'logo':g.logo })
             gps.append(tmp)
         result.update({'Groups':gps})
         return JsonResponse(result ,encoder=JSONEncoder)
@@ -120,34 +120,20 @@ def fetchGroupNames(request):
 
 @csrf_exempt
 def addGroup(request):
-    result = dict()
     name = request.POST['Name'] 
     desc = request.POST['description']
     if name is not "" and desc is not "":
-        result.update({'Name': request.POST['Name']})
+        ngr , created = NarGroups.objects.get_or_create(Name = name , description = desc)
         img = UploadlogoForm(request.POST, request.FILES)       
         domain = ""
         if img.is_valid():
             img.save()  
             domain = request.get_host()
             domain += "/blog/static/media/GroupLogo/" + str(request.FILES['pic'])
-            #tmp = NarGroups.objects.filter(Name = request.POST['Name'])
-            #tmp[0].logo = domain
-            #tmp[0].save()
+            #TODO: rename uploaded image to a meaningful name !
             result.update({'img_address':domain})
-        NarGroups.objects.create(Name = name , description = desc , logo = domain)
-    return JsonResponse(result ,encoder=JSONEncoder)
-        
-
-@csrf_exempt
-def home(request):
-    result = dict()
-    if request.method=="POST":
-        img = UploadForm(request.POST, request.FILES)       
-        if img.is_valid():
-            img.save()  
-        result.update({'img_address':img.Meta})
+        ngr.logo = domain
+        ngr.save()
+        return JsonResponse({'Status':'0x0000'} ,encoder=JSONEncoder)
     else:
-        img=UploadForm()
-        result.update({'Status':'Error'})
-    return JsonResponse(result ,encoder=JSONEncoder)
+        return JsonResponse({'Status':'0x0003'} ,encoder=JSONEncoder)
