@@ -131,7 +131,6 @@ def addGroup(request):
             domain = request.get_host()
             domain += "/blog/static/media/GroupLogo/" + str(request.FILES['pic'])
             #TODO: rename uploaded image to a meaningful name !
-            result.update({'img_address':domain})
         ngr.logo = domain
         ngr.save()
         return JsonResponse({'Status':'0x0000'} ,encoder=JSONEncoder)
