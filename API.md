@@ -69,3 +69,21 @@
     output(JSON):
         Status,
 }
+
+# fetch Group Posts{
+    {{Domain}}App/PostView/
+    
+    input(string):
+        Group,
+
+    output(JSON):
+        Posts{
+            Id,
+            Image,
+            Title,
+            author,
+            Text,
+            Time,
+        }
+
+}
