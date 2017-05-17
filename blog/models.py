@@ -15,7 +15,7 @@ class UploadlogoForm(ModelForm):
 
 class PostImage(models.Model):
     Today = datetime.datetime.now()
-    Image = models.ImageField("Image", upload_to = "blog/satic/media/post/{}/{}/{}/{}/{}".format(Today.year,Today.month,Today.day,Today.hour,Today.minute))
+    Image = models.ImageField("Image", upload_to = "blog/static/media/post/{}/{}/{}/{}/{}".format(Today.year,Today.month,Today.day,Today.hour,Today.minute))
     upload_date=models.DateTimeField(auto_now_add =True)
 
 class UploadPostForm(ModelForm):
