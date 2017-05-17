@@ -40,6 +40,10 @@ class Post(models.Model):
     Title       = models.CharField(max_length = 250, verbose_name = "عنوان")
     slug        = models.SlugField(max_length = 250 , unique_for_date='publish',verbose_name = "آدرس")
     Text        = models.TextField(verbose_name = "متن")
+    Today       = datetime.datetime.now()
+    Image       = models.ImageField("Image", null = True , blank = True , upload_to = "blog/satic/media/post/{}/{}/{}/{}/{}".format(author ,Today.year,Today.month,Today.day,Today.hour))
+    ImageUrl    = models.TextField(null = True , blank = True)
+    Group       = models.ForeignKey(NarGroups , default= "عمومی" , related_name = 'group_posts' , verbose_name = "گروه")
     publish     = models.DateTimeField(default = datetime.datetime.now, verbose_name = "تاریخ انتشار")
     created     = models.DateTimeField(auto_now_add = True)
     updated     = models.DateTimeField(auto_now = True)
@@ -50,6 +54,7 @@ class Post(models.Model):
         return self.Title
     class Meta:
         ordering = ('-publish',)
+
 
 class Comment(models.Model):
     postID  = models.ForeignKey(Post,related_name="post_comments")

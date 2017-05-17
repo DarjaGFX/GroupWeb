@@ -83,7 +83,6 @@ def NarSignUp(request):
 
 @csrf_exempt
 def PostDetailView(request):
-    request.encoding = 'koi8-r'
     postid = request.POST['id']
 
     post = Post.objects.filter(post_id = postid)
@@ -102,7 +101,20 @@ def PostDetailView(request):
         result.update({'Comments':coms})
     return JsonResponse(result ,encoder=JSONEncoder)
 
-
+@csrf_exempt
+def GroupPosts(request):
+    gpname = request.POST['Group']
+    group = NarGroups.objects.filter(Name = gpname)
+    post = Post.objects.filter(Group = group)  #TODO: add status = Published condition
+    result = dict()
+    tmp = []
+    i = len(post)
+    for j in range(i-1,-1,-1):
+        tpost = dict()
+        tpost.update({'Id': post[j].post_id , 'Image':post[j].ImageUrl ,'Title':post[j].Title , 'author' : post[j].author.DisplayUserName , 'Text':post[j].Text , 'Time': str(post[j].publish.year)+'/'+str(post[j].publish.month)+'/'+str(post[j].publish.day) }) 
+        tmp.append(tpost)
+    result.update({'Posts':tmp})
+    return JsonResponse(result ,encoder=JSONEncoder)
 
 @csrf_exempt
 def fetchGroupNames(request):

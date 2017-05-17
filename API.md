@@ -52,8 +52,10 @@
     {{Domain}}App/Group/load/
 
     output(JSON):
-        Name,
-        logo,
+        Groups{
+            Name,
+            logo,
+        }
 }
 
 # Add new Group{
