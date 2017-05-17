@@ -13,6 +13,17 @@ class UploadlogoForm(ModelForm):
         model = GroupLogo
         fields = ['pic']
 
+class PostImage(models.Model):
+    Today = datetime.datetime.now()
+    Image = models.ImageField("Image", null = True , blank = True , upload_to = "blog/satic/media/post/{}/{}/{}/{}/{}".format(Today.year,Today.month,Today.day,Today.hour,Today.minute))
+    upload_date=models.DateTimeField(auto_now_add =True)
+
+class UploadPostForm(ModelForm):
+    class Meta:
+        model = PostImage
+        fields = ['Image']
+
+
 class NarGroups(models.Model):
     Name = models.CharField(max_length=150 , null = False , unique = True , verbose_name = "نام" )
     description = models.TextField(verbose_name = "توضیحات")
@@ -38,10 +49,7 @@ class Post(models.Model):
     post_status = models.CharField(max_length = 10 , choices = status , default ='draft', verbose_name = "وضعیت")
     author      = models.ForeignKey(members , related_name = 'blog_posts', on_delete = models.CASCADE , verbose_name = "نویسنده")
     Title       = models.CharField(max_length = 250, verbose_name = "عنوان")
-    slug        = models.SlugField(max_length = 250 , unique_for_date='publish',verbose_name = "آدرس")
     Text        = models.TextField(verbose_name = "متن")
-    Today       = datetime.datetime.now()
-    Image       = models.ImageField("Image", null = True , blank = True , upload_to = "blog/satic/media/post/{}/{}/{}/{}/{}".format(author ,Today.year,Today.month,Today.day,Today.hour))
     ImageUrl    = models.TextField(null = True , blank = True)
     Group       = models.ForeignKey(NarGroups , default= "عمومی" , related_name = 'group_posts' , verbose_name = "گروه")
     publish     = models.DateTimeField(default = datetime.datetime.now, verbose_name = "تاریخ انتشار")

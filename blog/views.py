@@ -105,7 +105,7 @@ def PostDetailView(request):
 def GroupPosts(request):
     gpname = request.POST['Group']
     group = NarGroups.objects.filter(Name = gpname)
-    post = Post.objects.filter(Group = group)  #TODO: add status = Published condition
+    post = Post.objects.filter(Group = group , post_status = 'published' )  #TODO: add status = Published condition
     result = dict()
     tmp = []
     i = len(post)
@@ -134,17 +134,52 @@ def fetchGroupNames(request):
 def addGroup(request):
     name = request.POST['Name'] 
     desc = request.POST['description']
-    if name is not "" and desc is not "":
-        ngr , created = NarGroups.objects.get_or_create(Name = name , description = desc)
-        img = UploadlogoForm(request.POST, request.FILES)       
-        domain = ""
-        if img.is_valid():
-            img.save()  
-            domain = request.get_host()
-            domain += "/blog/static/media/GroupLogo/" + str(request.FILES['pic'])
-            #TODO: rename uploaded image to a meaningful name !
-        ngr.logo = domain
-        ngr.save()
-        return JsonResponse({'Status':'0x0000'} ,encoder=JSONEncoder)
+    Token = request.POST['Token']
+    user = members.objects.get(Token = Token)
+    if len(user)>0:
+        if name is not "" and desc is not "":
+            ngr , created = NarGroups.objects.get_or_create(Name = name , description = desc)
+            img = UploadlogoForm(request.POST, request.FILES)       
+            domain = "https://"
+            if img.is_valid():
+                img.save()  
+                domain += request.get_host()
+                domain += "/blog/static/media/GroupLogo/" + str(request.FILES['pic'])
+                #TODO: rename uploaded image to a meaningful name !
+            ngr.logo = domain
+            ngr.save()
+            return JsonResponse({'Status':'0x0000'} ,encoder=JSONEncoder)
+        else:
+            return JsonResponse({'Status':'0x0003'} ,encoder=JSONEncoder)
     else:
-        return JsonResponse({'Status':'0x0003'} ,encoder=JSONEncoder)
+        return JsonResponse({'Status':'0x0004'} ,encoder=JSONEncoder)
+
+@csrf_exempt
+def addNewPost(request):
+    Token = request.POST['Token']
+    Title = request.POST['Title']
+    Text = request.POST['Text']
+    status = request.POST['status']
+    mmber = members.objects.filter(Token = Token)
+    if len(mmber)>0:
+        author = mmber[0]
+        if Title is not "" and Text is not "":
+            chck = Post.objects.filter(author = author , Title = Title)
+            if len(chck)<0:
+                Group       = request.POST['Group']
+                Today       = datetime.datetime.now()
+                img = UploadPostForm(request.POST, request.FILES)
+                if img.is_valid():
+                    img.save()
+                domain = "https://"
+                domain += request.get_host()
+                domain += "blog/satic/media/post/{}/{}/{}/{}/{}".format(Today.year,Today.month,Today.day,Today.hour,Today.minute) + str(request.FILES['Image'])
+                pst = Post.objects.create(post_status = status ,Title = Title , author = author , Text = Text , ImageUrl=domain ,Group = Group ,publish = Today)
+                ImageUrl    = models.TextField(null = True , blank = True)
+                return JsonResponse({'Status':'0x0000'} ,encoder=JSONEncoder)
+            else:
+                return JsonResponse({'Status':'0x0005'} ,encoder=JSONEncoder)
+        else:
+            return JsonResponse({'Status':'0x0006'} ,encoder=JSONEncoder)
+    else:
+        return JsonResponse({'Status':'0x0004'} ,encoder=JSONEncoder)

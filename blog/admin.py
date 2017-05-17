@@ -5,10 +5,10 @@ class Group_admin(admin.ModelAdmin):
     list_display = ('Name','description')
 
 class Post_admin(admin.ModelAdmin):
-    list_display  		= ('author' , 'Title', 'publish', 'slug')
+    list_display  		= ('author' , 'Title', 'publish')
     list_filter 		= ('post_status','created','publish','author')
     search_fields 		= ('Title','Text')
-    prepopulated_fields = {'slug':('Title',)}
+    #prepopulated_fields = {'slug':('Title',)}
     date_hierarchy 		= 'publish'
     raw_id_fields 		= ('author',)
     ordering 			= ['post_status' , 'publish']

@@ -13,4 +13,15 @@
 0x0003{
 	"unexpected error accured"
 }
-	
+
+0x0004{
+	"Token is invalid"
+}
+
+0x0005{
+	"Post already exists"
+}
+
+0x0006{
+	"necessary fields are empty"
+}

@@ -16,7 +16,8 @@ urlpatterns = [
     url(r'^App/Group/load/', views.fetchGroupNames , name = 'fetchGroupNames'),
     url(r'^App/Group/add/', views.addGroup , name = 'addGroup'),
     url(r'^App/PostView/' , views.GroupPosts , name = 'GroupPosts'),
-    
+    url(r'^App/Post/add/' , views.addNewPost , name = 'addNewPost'),
+
     #url(r'^add/group/', views.addGroup , name = 'addGroup'),
     #url(r'^$', views.postListView.as_view(), name= 'post_list'),
     #url(r'^(?P<year>\d{4})/(?P<month>\d{1})/(?P<day>\d{2})/(?P<post>[-\w]+)/$',views.post_detail, name = 'post_detail'),

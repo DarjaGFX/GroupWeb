@@ -85,5 +85,19 @@
             Text,
             Time,
         }
+}
 
+# Add New Post{
+    {{Domain}}App/Post/add/
+    
+    input(string):
+        Token,
+        Title,
+        Text,
+        status,
+        Group,
+        Image,
+
+    output(JSON):
+        status,
 }
