@@ -135,8 +135,8 @@ def addGroup(request):
     name = request.POST['Name'] 
     desc = request.POST['description']
     Token = request.POST['Token']
-    user = members.objects.get(Token = Token)
-    if len(user)>0:
+    user = members.objects.filter(Token = Token)
+    if len(user) > 0:
         if name is not "" and desc is not "":
             ngr , created = NarGroups.objects.get_or_create(Name = name , description = desc)
             img = UploadlogoForm(request.POST, request.FILES)       
@@ -165,17 +165,17 @@ def addNewPost(request):
         author = mmber[0]
         if Title is not "" and Text is not "":
             chck = Post.objects.filter(author = author , Title = Title)
-            if len(chck)<0:
-                Group       = request.POST['Group']
-                Today       = datetime.datetime.now()
+            if len(chck)<1:
+                gp = request.POST['Group']
+                Group = NarGroups.objects.filter(Name = gp)
+                Today = datetime.datetime.now()
                 img = UploadPostForm(request.POST, request.FILES)
+                domain = "https://"
                 if img.is_valid():
                     img.save()
-                domain = "https://"
-                domain += request.get_host()
-                domain += "blog/satic/media/post/{}/{}/{}/{}/{}".format(Today.year,Today.month,Today.day,Today.hour,Today.minute) + str(request.FILES['Image'])
-                pst = Post.objects.create(post_status = status ,Title = Title , author = author , Text = Text , ImageUrl=domain ,Group = Group ,publish = Today)
-                ImageUrl    = models.TextField(null = True , blank = True)
+                    domain += request.get_host()
+                    domain += "blog/satic/media/post/{}/{}/{}/{}/{}".format(Today.year,Today.month,Today.day,Today.hour,Today.minute) + str(request.FILES['Image'])
+                pst = Post.objects.create(post_status = status ,Title = Title , author = author , Text = Text , ImageUrl=domain ,Group = Group[0] ,publish = Today)
                 return JsonResponse({'Status':'0x0000'} ,encoder=JSONEncoder)
             else:
                 return JsonResponse({'Status':'0x0005'} ,encoder=JSONEncoder)

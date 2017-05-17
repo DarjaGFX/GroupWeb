@@ -62,6 +62,7 @@
     {{Domain}}App/Group/add/
     
     input(image , string):
+        Token,
         pic,
         Name,
         description,

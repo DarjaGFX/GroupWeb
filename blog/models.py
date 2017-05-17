@@ -15,7 +15,7 @@ class UploadlogoForm(ModelForm):
 
 class PostImage(models.Model):
     Today = datetime.datetime.now()
-    Image = models.ImageField("Image", null = True , blank = True , upload_to = "blog/satic/media/post/{}/{}/{}/{}/{}".format(Today.year,Today.month,Today.day,Today.hour,Today.minute))
+    Image = models.ImageField("Image", upload_to = "blog/satic/media/post/{}/{}/{}/{}/{}".format(Today.year,Today.month,Today.day,Today.hour,Today.minute))
     upload_date=models.DateTimeField(auto_now_add =True)
 
 class UploadPostForm(ModelForm):
@@ -27,7 +27,7 @@ class UploadPostForm(ModelForm):
 class NarGroups(models.Model):
     Name = models.CharField(max_length=150 , null = False , unique = True , verbose_name = "نام" )
     description = models.TextField(verbose_name = "توضیحات")
-    logo = models.TextField(null = True)
+    logo = models.TextField(null = True , blank=True)
     def __str__(self):
         return self.Name
 
