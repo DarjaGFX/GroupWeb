@@ -111,7 +111,7 @@ def GroupPosts(request):
     i = len(post)
     for j in range(i-1,-1,-1):
         tpost = dict()
-        tpost.update({'Id': post[j].post_id , 'Image':post[j].ImageUrl ,'Title':post[j].Title , 'author' : post[j].author.DisplayUserName , 'Text':post[j].Text , 'Time': str(post[j].publish.year)+'/'+str(post[j].publish.month)+'/'+str(post[j].publish.day) }) 
+        tpost.update({'Id': post[j].post_id , 'Image':post[j].ImageUrl ,'Title':post[j].Title , 'author' : post[j].author.DisplayUserName , 'Text':post[j].Text , 'Date': str(post[j].publish.year)+'/'+str(post[j].publish.month)+'/'+str(post[j].publish.day) , 'Time': str(post[j].publish.hour)+":"+str(post[j].publish.minute) }) 
         tmp.append(tpost)
     result.update({'Posts':tmp})
     return JsonResponse(result ,encoder=JSONEncoder)
