@@ -39,6 +39,7 @@
             Title,
             author,
             Text,
+            Date,
             Time,
         }
         Comments{    

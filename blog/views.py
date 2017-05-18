@@ -88,7 +88,7 @@ def PostDetailView(request):
     post = Post.objects.filter(post_id = postid)
     result = dict()
     tmp = dict()
-    tmp.update({'Title':post[0].Title , 'author' : post[0].author.DisplayUserName , 'Text':post[0].Text , 'Time': str(post[0].publish.year)+'/'+str(post[0].publish.month)+'/'+str(post[0].publish.day) })
+    tmp.update({'Title':post[0].Title , 'author' : post[0].author.DisplayUserName , 'Text':post[0].Text , 'Date': str(post[0].publish.year)+'/'+str(post[0].publish.month)+'/'+str(post[0].publish.day) , 'Time': str(post[0].publish.hour)+':'+str(post[0].publish.minute) })
     result.update({'Post':tmp})
 
     comments = Comment.objects.filter(postID = post[0] , active = True )
@@ -96,7 +96,7 @@ def PostDetailView(request):
         coms = []
         for cm in comments:
             response = dict()
-            response.update({'Name' : cm.name , 'Text' : cm.Text , 'Time' : str(cm.created.year)+'/'+str(cm.created.month)+'/'+str(cm.created.day) }) 
+            response.update({'Name' : cm.name , 'Text' : cm.Text , 'Date' : str(cm.created.year)+'/'+str(cm.created.month)+'/'+str(cm.created.day) , 'Time' : str(cm.created.hour)+':'+str(cm.created.minute) }) 
             coms.append(response)   
         result.update({'Comments':coms})
     return JsonResponse(result ,encoder=JSONEncoder)
