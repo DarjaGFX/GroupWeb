@@ -45,6 +45,7 @@
         Comments{    
             Name,   
             Text,
+            Date,
             Time,
         }
 }
