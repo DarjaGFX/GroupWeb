@@ -26,7 +26,7 @@
         Token (optional),
 }
 
-# Get Post and its Comments{
+# Get Post Comments{
     {{Domain}}App/PostDetailView/
     POST
 
@@ -35,13 +35,6 @@
     
     output(JSON): #this could return a list of output  
         
-        Post{
-            Title,
-            author,
-            Text,
-            Date,
-            Time,
-        }
         Comments{    
             Name,   
             Text,
