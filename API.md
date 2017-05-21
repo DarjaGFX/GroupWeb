@@ -27,7 +27,7 @@
 }
 
 # Get Post Comments{
-    {{Domain}}App/Comments/load/
+    {{Domain}}/App/Comments/get/
     POST
 
     input(string):
@@ -44,7 +44,7 @@
 }
 
 # fetch Group names{
-    {{Domain}}/App/Group/load/
+    {{Domain}}/App/Group/get/
 
     output(JSON):
         Groups{
@@ -54,7 +54,7 @@
 }
 
 # Add new Group{
-    {{Domain}}/App/Group/add/
+    {{Domain}}/App/Group/set/
     
     input(image , string):
         Token,
@@ -85,7 +85,7 @@
 }
 
 # Add New Post{
-    {{Domain}}/App/Post/add/
+    {{Domain}}/App/Post/set/
     
     input(string):
         Token,
@@ -100,7 +100,7 @@
 }
 
 # Add New Comment{
-    {{Domain}}/App/Comments/add/
+    {{Domain}}/App/Comments/set/
     
     input(string):
         Token,
@@ -109,4 +109,16 @@
         
     output(JSON):
         status,
+}
+
+# Get user groups{
+    {{Domain}}/App/user/groups/get/
+    
+    input(string):
+        Token,
+        
+    output(JSON):
+        Groups[
+            Name,
+        ]
 }

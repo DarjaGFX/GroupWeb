@@ -12,12 +12,13 @@ urlpatterns = [
     # Remote App Views!#
     url(r'^App/signup/', views.NarSignUp , name = 'NarSignUp'),
     url(r'^App/login/', views.Narlogin , name = 'Narlogin'),
-    url(r'^App/Comments/load/', views.PostDetailView , name = 'PostDetailView'),
-    url(r'^App/Group/load/', views.fetchGroupNames , name = 'fetchGroupNames'),
-    url(r'^App/Group/add/', views.addGroup , name = 'addGroup'),
+    url(r'^App/Comments/get/', views.PostDetailView , name = 'PostDetailView'),
+    url(r'^App/Group/get/', views.fetchGroupNames , name = 'fetchGroupNames'),
+    url(r'^App/Group/set/', views.addGroup , name = 'addGroup'),
     url(r'^App/PostView/' , views.GroupPosts , name = 'GroupPosts'),
-    url(r'^App/Post/add/' , views.addNewPost , name = 'addNewPost'),
-    url(r'^App/Comments/add/' , views.addcomment , name = 'addcomment'),
+    url(r'^App/Post/set/' , views.addNewPost , name = 'addNewPost'),
+    url(r'^App/Comments/set/' , views.addcomment , name = 'addcomment'),
+    url(r'^App/user/groups/get/' , views.getAvailableGroups , name = 'getAvailableGroups'),
     
 
     #url(r'^add/group/', views.addGroup , name = 'addGroup'),

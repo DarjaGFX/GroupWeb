@@ -224,3 +224,25 @@ def addcomment(request):
             return JsonResponse({'Status':'0x0008' },encoder=JSONEncoder)
     else:
         return JsonResponse({'Status':'0x0001' },encoder=JSONEncoder)
+
+def getAvailableGroups(request):
+    Token = request.POST['Token']
+    user = members.objects.filter(Token = Token)
+    arr = []
+    if len(user)>0:
+        if user[0].AccessLevel == 'user':
+            pass
+        elif user[0].AccessLevel == 'member':
+            gp = GroupMembers.objects.filter(user = user[0])
+            if len(gp)>0 :
+                for n in gp :
+                tmp = dict()
+                tmp.update({'Name':gp.group})
+                arr.append(tmp)    
+        elif user[0].AccessLevel == 'admin':
+            ng = NarGroups.objects.all()
+            for n in ng :
+                tmp = dict()
+                tmp.update({'Name':n.Name})
+                arr.append(tmp)
+    return JsonResponse({'Groups':arr },encoder=JSONEncoder)

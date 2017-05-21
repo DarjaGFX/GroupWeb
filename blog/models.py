@@ -61,7 +61,8 @@ class members(models.Model):
 class GroupMembers(models.Model):
     user    = models.ForeignKey( members , related_name = 'Group_users' , on_delete = models.CASCADE)
     group   = models.ForeignKey( NarGroups , related_name = 'User_groups' , on_delete = models.CASCADE)
-
+    class Meta:
+        unique_together = ("group", "user",)
 class Post(models.Model):
     status      = (('draft', 'Draft'),('published','Published'))
     post_id     = models.AutoField(primary_key=True)
