@@ -118,10 +118,10 @@ def GroupPosts(request):
         tpost = dict()
         tpost.update({
             'Id'     : post[j].post_id , 
-            'Image'  :post[j].ImageUrl ,
-            'Title'  :post[j].Title ,
+            'Image'  : post[j].ImageUrl ,
+            'Title'  : post[j].Title ,
             'author' : post[j].author.DisplayUserName , 
-            'Text'   :post[j].Text , 
+            'Text'   : post[j].Text , 
             'Date'   : str(post[j].publish.year)+'/'+str(post[j].publish.month)+'/'+str(post[j].publish.day) , 
             'Time'   : str(post[j].publish.hour)+":"+str(post[j].publish.minute)
         }) 
@@ -139,7 +139,7 @@ def fetchGroupNames(request):
             tmp = dict()
             tmp.update({ 
                 'Name' : g.Name , 
-                'logo':g.logo
+                'logo' : g.logo
             })
             gps.append(tmp)
         result.update({'Groups':gps})
@@ -153,7 +153,7 @@ def addGroup(request):
     Token = request.POST['Token']
     user = members.objects.filter(Token = Token)
     if len(user) > 0:
-        if user[0].AccessLevel is not 'user':
+        if str(user[0].AccessLevel) != 'user':
             if name is not "" and desc is not "":
                 ngr , created = NarGroups.objects.get_or_create(Name = name , description = desc)
                 img = UploadlogoForm(request.POST, request.FILES)       
@@ -181,7 +181,7 @@ def addNewPost(request):
     status = request.POST['status']
     mmber = members.objects.filter(Token = Token)
     if len(mmber)>0:
-        if user[0].AccessLevel is not 'user':
+        if mmber[0].AccessLevel != 'user':
             author = mmber[0]
             if Title is not "" and Text is not "":
                 chck = Post.objects.filter(author = author , Title = Title)
@@ -205,3 +205,22 @@ def addNewPost(request):
             return JsonResponse({'Status':'0x0007'} ,encoder=JSONEncoder)
     else:
         return JsonResponse({'Status':'0x0004'} ,encoder=JSONEncoder)
+
+@csrf_exempt
+def addcomment(request):
+    post_id = request.POST['PostId']
+    Token = request.POST['Token']
+    Text = request.POST['Text']
+    user = members.objects.filter(Token = Token)
+    post = Post.objects.filter(post_id = post_id)
+    if len(user)>0:
+        if len(post)>0:
+            if Text != "":
+                Comment.objects.get_or_create(post = post[0] , member = user[0] , Text = Text)
+                return JsonResponse({'Status':'0x0000' },encoder=JSONEncoder)
+            else:
+                return JsonResponse({'Status':'0x0006' },encoder=JSONEncoder)
+        else:
+            return JsonResponse({'Status':'0x0008' },encoder=JSONEncoder)
+    else:
+        return JsonResponse({'Status':'0x0001' },encoder=JSONEncoder)

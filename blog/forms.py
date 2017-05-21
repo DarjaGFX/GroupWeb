@@ -15,6 +15,6 @@ class form_SignUp(forms.ModelForm):
 class form_comment(forms.ModelForm):
     class Meta:
         model  = Comment
-        fields = ["name","email","Text"]
+        fields = ["member","Text"]
 
 

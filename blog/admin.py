@@ -14,8 +14,8 @@ class Post_admin(admin.ModelAdmin):
     ordering 			= ['post_status' , 'publish']
 
 class CommentAdmin(admin.ModelAdmin):
-    list_display	= ('name','email','created','active')
-    raw_id_fields 		= ('postID',)
+    list_display	= ('member','created','active')
+    raw_id_fields 		= ('post',)
 admin.site.register(members)
 admin.site.register(Post,Post_admin)
 admin.site.register(NarGroups,Group_admin)

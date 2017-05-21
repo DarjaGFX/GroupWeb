@@ -29,3 +29,7 @@
 0x0007{
 	"Access Denied"
 }
+
+0x0008{
+	"Invalid Post"
+}

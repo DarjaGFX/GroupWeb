@@ -84,9 +84,8 @@ class Post(models.Model):
 
 
 class Comment(models.Model):
-    postID  = models.ForeignKey(Post,related_name="post_comments")
-    name    = models.CharField(max_length=80, verbose_name = "نام")
-    email   = models.EmailField(verbose_name = "ایمیل")
+    post  = models.ForeignKey(Post,related_name="post_comments")
+    member    = models.ForeignKey(members, verbose_name = "نام")
     Text    = models.TextField(verbose_name = "متن")
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -98,4 +97,4 @@ class Comment(models.Model):
         ordering=('created',)
 
     def __str__(self):
-        return 'Comment by {} on {}'.format(self.name,self.postID)
+        return 'نوشته شده توسط {} در {}'.format(self.member,self.post)
