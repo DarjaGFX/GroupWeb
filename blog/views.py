@@ -222,24 +222,26 @@ def addcomment(request):
     else:
         return JsonResponse({'Status':'0x0001' },encoder=JSONEncoder)
 
+@csrf_exempt
 def getAvailableGroups(request):
     Token = request.POST['Token']
     user = members.objects.filter(Token = Token)
+    res = dict()
     arr = []
     if len(user)>0:
         if user[0].AccessLevel == 'user':
             pass
         elif user[0].AccessLevel == 'member':
             gp = GroupMembers.objects.filter(user = user[0])
-            if len(gp)>0 :
-                for n in gp :
-                    tmp = dict()
-                    tmp.update({'Name':n.group})
-                    arr.append(tmp)    
+            for n in gp :
+                tmp = dict()
+                tmp.update({'Name':str(n.group)})
+                arr.append(tmp)    
         elif user[0].AccessLevel == 'admin':
             ng = NarGroups.objects.all()
             for n in ng :
                 tmp = dict()
                 tmp.update({'Name':n.Name})
                 arr.append(tmp)
-    return JsonResponse({'Groups':arr },encoder=JSONEncoder)
+    res.update({'Groups':arr})
+    return JsonResponse(res,encoder=JSONEncoder)
