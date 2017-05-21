@@ -150,7 +150,7 @@ def addGroup(request):
     Token = request.POST['Token']
     user = members.objects.filter(Token = Token)
     if len(user) > 0:
-        if str(user[0].AccessLevel) != 'user':
+        if str(user[0].AccessLevel) == 'admin':
             if name is not "" and desc is not "":
                 ngr , created = NarGroups.objects.get_or_create(Name = name , description = desc)
                 img = UploadlogoForm(request.POST, request.FILES)       
