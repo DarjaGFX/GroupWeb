@@ -27,7 +27,7 @@
 }
 
 # Get Post Comments{
-    {{Domain}}/App/PostDetailView/
+    {{Domain}}App/Comments/load/
     POST
 
     input(string):
