@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import members, Post ,NarGroups , Comment
+from .models import members, Post ,NarGroups , Comment , GroupMembers
 
 class Group_admin(admin.ModelAdmin):
     list_display = ('Name','description')
@@ -16,7 +16,12 @@ class Post_admin(admin.ModelAdmin):
 class CommentAdmin(admin.ModelAdmin):
     list_display	= ('member','created','active')
     raw_id_fields 		= ('post',)
+
+class group_declare_admin(admin.ModelAdmin):
+    list_display	= ('user','group')
+
 admin.site.register(members)
 admin.site.register(Post,Post_admin)
 admin.site.register(NarGroups,Group_admin)
+admin.site.register(GroupMembers,group_declare_admin)
 admin.site.register(Comment,CommentAdmin)

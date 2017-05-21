@@ -7,7 +7,6 @@
         npass,
         nemail,
         ndispn,
-        ngroup,
     
     output(JSON):
         Status,

@@ -66,17 +66,14 @@ def NarSignUp(request):
     PassWord = request.POST['npass']
     email    = request.POST['nemail']
     dispusn  = request.POST['ndispn']
-    grp      = request.POST['ngroup']
     #TODO: check if any empty parameters passed, return Error!
-    ngroup = NarGroups.objects.filter(Name = grp)
-
     user = members.objects.filter(userName= UserName.lower())
     if len(user)>0:
         return JsonResponse({'Status':'0x0002',},encoder=JSONEncoder)
     else:
         new_member , created = members.objects.get_or_create(email=email , 
         userName = UserName.lower() , password = PassWord , 
-        DisplayUserName = dispusn , Group = ngroup[0] , Token = CreateToken() )
+        DisplayUserName = dispusn , Token = CreateToken() )
         if created:
             return JsonResponse({'Status':'0x0000',},encoder=JSONEncoder)
         else:
@@ -236,9 +233,9 @@ def getAvailableGroups(request):
             gp = GroupMembers.objects.filter(user = user[0])
             if len(gp)>0 :
                 for n in gp :
-                tmp = dict()
-                tmp.update({'Name':gp.group})
-                arr.append(tmp)    
+                    tmp = dict()
+                    tmp.update({'Name':n.group})
+                    arr.append(tmp)    
         elif user[0].AccessLevel == 'admin':
             ng = NarGroups.objects.all()
             for n in ng :
