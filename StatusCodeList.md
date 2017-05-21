@@ -25,3 +25,7 @@
 0x0006{
 	"necessary fields are empty"
 }
+
+0x0007{
+	"Access Denied"
+}

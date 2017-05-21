@@ -106,6 +106,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
+# LANGUAGE_CODE = 'fa-ir'
+# import locale
+# locale.setlocale(locale.LC_ALL, "fa_IR")
 
 TIME_ZONE = 'UTC'
 

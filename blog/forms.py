@@ -10,7 +10,7 @@ class form_Group(forms.ModelForm):
 class form_SignUp(forms.ModelForm):
     class Meta:
         model  = members
-        fields = ["Group","email","userName","password","DisplayUserName"]
+        fields = ["email","userName","password","DisplayUserName"]
 
 class form_comment(forms.ModelForm):
     class Meta:

@@ -3,26 +3,39 @@ from django.contrib.auth.models import User , Group
 import datetime
 from django.db import models
 from django.forms import ModelForm
+import uuid
+
+def CreateToken():
+    newToken = str(uuid.uuid4())[:23].replace('-','').lower()
+    return newToken
 
 class GroupLogo(models.Model):
-    pic = models.ImageField("Image", upload_to="blog/static/media/GroupLogo/" )    
+    pic = models.ImageField("Image", upload_to="blog/static/media/GroupLogo/")
     upload_date=models.DateTimeField(auto_now_add =True)
 
+class ProfilePicture(models.Model):
+    propic = models.ImageField("Image", upload_to="blog/static/media/usr/profilepicture/")
+    upload_date=models.DateTimeField(auto_now_add =True)
+
+class PostImage(models.Model):
+    Today = datetime.datetime.now()
+    Image = models.ImageField("Image", upload_to = "blog/static/media/post/%Y/%h/%d/{}/{}/".format(Today.hour,Today.minute))
+    upload_date=models.DateTimeField(auto_now_add =True)
+    
 class UploadlogoForm(ModelForm):
     class Meta:
         model = GroupLogo
         fields = ['pic']
 
-class PostImage(models.Model):
-    Today = datetime.datetime.now()
-    Image = models.ImageField("Image", upload_to = "blog/static/media/post/{}/{}/{}/{}/{}".format(Today.year,Today.month,Today.day,Today.hour,Today.minute))
-    upload_date=models.DateTimeField(auto_now_add =True)
+class UploadProPicForm(ModelForm):
+    class Meta:
+        model = ProfilePicture
+        fields = ['propic']
 
-class UploadPostForm(ModelForm):
+class UploadPostImage_Form(ModelForm):
     class Meta:
         model = PostImage
         fields = ['Image']
-
 
 class NarGroups(models.Model):
     Name = models.CharField(max_length=150 , null = False , unique = True , verbose_name = "نام" )
@@ -32,8 +45,10 @@ class NarGroups(models.Model):
         return self.Name
 
 class members(models.Model):
-    Token           = models.CharField(max_length=20 , default = datetime.datetime.now )
-    Group           = models.ForeignKey(NarGroups , verbose_name = "گروه")
+    status          = (('user', 'User'),('member','Member'),('admin','Admin'))
+    Token           = models.CharField(max_length=20 , unique = True , default = CreateToken() )
+    ProPic          = models.TextField(null = True , blank=True)
+    AccessLevel     = models.CharField(max_length = 10 , choices = status , default ='user' , verbose_name = "سطح کاربری")
     email           = models.EmailField(null = False , verbose_name = "ایمیل")
     userName        = models.CharField(max_length=32 , unique = True, null = False , verbose_name = "نام کاربری")
     password        = models.CharField(max_length=32 , null = False , verbose_name = "کلمه عبور")
@@ -42,6 +57,10 @@ class members(models.Model):
         return self.DisplayUserName
     class Meta:
         unique_together = ("userName", "Token",)
+
+class GroupMembers(models.Model):
+    user    = models.ForeignKey( members , related_name = 'Group_users' , on_delete = models.CASCADE)
+    group   = models.ForeignKey( NarGroups , related_name = 'User_groups' , on_delete = models.CASCADE)
 
 class Post(models.Model):
     status      = (('draft', 'Draft'),('published','Published'))
