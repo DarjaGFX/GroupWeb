@@ -230,7 +230,7 @@ def getAvailableGroups(request):
     arr = []
     if len(user)>0:
         if user[0].AccessLevel == 'user':
-            pass
+            return JsonResponse({'Status':'0x0007'},encoder=JSONEncoder)
         elif user[0].AccessLevel == 'member':
             gp = GroupMembers.objects.filter(user = user[0])
             for n in gp :
@@ -243,5 +243,33 @@ def getAvailableGroups(request):
                 tmp = dict()
                 tmp.update({'Name':n.Name})
                 arr.append(tmp)
+    else:
+        return JsonResponse({'Status':'0x0004'},encoder=JSONEncoder)
     res.update({'Groups':arr})
     return JsonResponse(res,encoder=JSONEncoder)
+
+@csrf_exempt
+def setAvailableGroups(request):
+    Token = request.POST['Token']
+    admin = members.objects.filter(Token = Token)
+    if len(admin)>0:
+        if admin[0].AccessLevel != 'admin':
+            return JsonResponse({'Status':'0x0007'},encoder=JSONEncoder)
+        else:
+            un = request.POST['user']
+            gp = request.POST['group']
+            if un != "" and gp != "":
+                user = members.objects.filter(userName = un)
+                group = NarGroups.objects.filter(Name = gp)
+                if len(user)>0:
+                    if len(group)>0:
+                        GroupMembers.objects.get_or_create(user = user[0] , group = group[0])
+                        return JsonResponse({'Status':'0x0000'},encoder=JSONEncoder)
+                    else:
+                        return JsonResponse({'Status':'0x000A'},encoder=JSONEncoder)
+                else:
+                    return JsonResponse({'Status':'0x0009'},encoder=JSONEncoder)   
+            else:
+                 return JsonResponse({'Status':'0x0006'},encoder=JSONEncoder)
+    else:
+        return JsonResponse({'Status':'0x0004'},encoder=JSONEncoder)

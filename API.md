@@ -121,3 +121,15 @@
             Name,
         ]
 }
+
+# Set user groups{
+    {{Domain}}/App/user/groups/set/
+    
+    input(string):
+        Token,
+        user,
+        group,
+
+    output(JSON):
+        Status,
+}

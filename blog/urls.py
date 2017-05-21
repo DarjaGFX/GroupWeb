@@ -19,7 +19,7 @@ urlpatterns = [
     url(r'^App/Post/set/' , views.addNewPost , name = 'addNewPost'),
     url(r'^App/Comments/set/' , views.addcomment , name = 'addcomment'),
     url(r'^App/user/groups/get/' , views.getAvailableGroups , name = 'getAvailableGroups'),
-    
+    url(r'^App/user/groups/set/' , views.setAvailableGroups , name = 'setAvailableGroups'),
 
     #url(r'^add/group/', views.addGroup , name = 'addGroup'),
     #url(r'^$', views.postListView.as_view(), name= 'post_list'),

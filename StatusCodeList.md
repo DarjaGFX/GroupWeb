@@ -33,3 +33,11 @@
 0x0008{
 	"Invalid Post"
 }
+
+0x0009{
+	"User Does Not Exist"
+}
+
+0x000A{
+	"Group Does Not Exist"
+}
