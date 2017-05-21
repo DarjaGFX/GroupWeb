@@ -66,18 +66,20 @@ def NarSignUp(request):
     PassWord = request.POST['npass']
     email    = request.POST['nemail']
     dispusn  = request.POST['ndispn']
-    #TODO: check if any empty parameters passed, return Error!
-    user = members.objects.filter(userName= UserName.lower())
-    if len(user)>0:
-        return JsonResponse({'Status':'0x0002',},encoder=JSONEncoder)
-    else:
-        new_member , created = members.objects.get_or_create(email=email , 
-        userName = UserName.lower() , password = PassWord , 
-        DisplayUserName = dispusn , Token = CreateToken() )
-        if created:
-            return JsonResponse({'Status':'0x0000',},encoder=JSONEncoder)
+    if UserName != "" and PassWord!= "" and email != "" and dispusn != "":
+        user = members.objects.filter(userName= UserName.lower())
+        if len(user)>0:
+            return JsonResponse({'Status':'0x0002',},encoder=JSONEncoder)
         else:
-            return JsonResponse({'Status':'0x0003',}, encoder=JSONEncoder)
+            new_member , created = members.objects.get_or_create(email=email , 
+            userName = UserName.lower() , password = PassWord , 
+            DisplayUserName = dispusn , Token = CreateToken() )
+            if created:
+                return JsonResponse({'Status':'0x0000',},encoder=JSONEncoder)
+            else:
+                return JsonResponse({'Status':'0x0003',}, encoder=JSONEncoder)
+    else:
+        return JsonResponse({'Status':'0x0006',}, encoder=JSONEncoder)
 
 
 @csrf_exempt
@@ -107,7 +109,7 @@ def PostDetailView(request):
 def GroupPosts(request):
     gpname = request.POST['Group']
     group = NarGroups.objects.filter(Name = gpname)
-    post = Post.objects.filter(Group = group , post_status = 'published' )  #TODO: add status = Published condition
+    post = Post.objects.filter(Group = group , post_status = 'published' )
     result = dict()
     tmp = []
     i = len(post)
