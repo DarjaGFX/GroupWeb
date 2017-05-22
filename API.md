@@ -25,6 +25,20 @@
         Token (optional),
 }
 
+###GET
+
+# Get user groups{
+    {{Domain}}/App/user/groups/get/
+    
+    input(string):
+        Token,
+        
+    output(JSON):
+        Groups[
+            Name,
+        ]
+}
+
 # Get Post Comments{
     {{Domain}}/App/Comments/get/
     POST
@@ -42,7 +56,7 @@
         }
 }
 
-# fetch Group names{
+# Get Group names{
     {{Domain}}/App/Group/get/
 
     output(JSON):
@@ -52,20 +66,8 @@
         }
 }
 
-# Add new Group{
-    {{Domain}}/App/Group/set/
-    
-    input(image , string):
-        Token,
-        pic,
-        Name,
-        description,
 
-    output(JSON):
-        Status,
-}
-
-# fetch Group Posts{
+# Get Group Posts{
     {{Domain}}/App/PostView/
     
     input(string):
@@ -83,7 +85,13 @@
         }
 }
 
-# Add New Post{
+
+
+
+
+###SET
+
+# Set New Post{
     {{Domain}}/App/Post/set/
     
     input(string):
@@ -98,7 +106,7 @@
         status,
 }
 
-# Add New Comment{
+# Set New Comment{
     {{Domain}}/App/Comments/set/
     
     input(string):
@@ -110,17 +118,6 @@
         status,
 }
 
-# Get user groups{
-    {{Domain}}/App/user/groups/get/
-    
-    input(string):
-        Token,
-        
-    output(JSON):
-        Groups[
-            Name,
-        ]
-}
 
 # Set user groups{
     {{Domain}}/App/user/groups/set/
@@ -129,6 +126,19 @@
         Token,
         user,
         group,
+
+    output(JSON):
+        Status,
+}
+
+# Set new Group{
+    {{Domain}}/App/Group/set/
+    
+    input(image , string):
+        Token,
+        pic,
+        Name,
+        description,
 
     output(JSON):
         Status,
