@@ -297,3 +297,21 @@ def App_LoadProfile(request):
         return JsonResponse(res,encoder=JSONEncoder)
     else:
         return JsonResponse({'Status':'0x0004'},encoder=JSONEncoder)
+
+
+@csrf_exempt
+def App_MemberProfileView(request):
+    postID = request.POST['postid']
+    if postID != "":
+        post = Post.objects.get(post_id = postID)
+        u = post.author
+        gps = GroupMembers.objects.filter(user = u)
+        grp = []
+        for g in gps:
+            groups = dict()
+            groups.update({'Name':g.group})
+            grp.append(groups)
+        res = {'propic':u.ProPic ,'Email':u.email , 'dispun':u.DisplayUserName , 'AccessLevel':u.AccessLevel , 'Groups':grp}
+        return JsonResponse(res,encoder=JSONEncoder)
+    else:
+        return JsonResponse({'Status':'0x0006'},encoder=JSONEncoder)

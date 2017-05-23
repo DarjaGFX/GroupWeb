@@ -27,6 +27,23 @@
 
 ###GET
 
+# Get Member Profile{
+    {{Domain}}/App/user/profile/member/
+    
+    input(string):
+        postid,
+        
+    output(JSON):
+        propic,
+        Email,
+        dispun,
+        AccessLevel,
+        Groups[
+            Name,
+        ]        
+}
+
+
 # Get Personal Profile{
     {{Domain}}/App/user/profile/get/
     
