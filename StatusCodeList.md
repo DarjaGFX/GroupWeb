@@ -45,3 +45,7 @@
 0x000B{
 	"Invalid action"
 }
+
+0x000C{
+	"Invalid Post Status"
+}

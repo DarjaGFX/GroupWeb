@@ -185,22 +185,25 @@ def addNewPost(request):
     if len(mmber)>0:
         if mmber[0].AccessLevel != 'user':
             author = mmber[0]
-            if Title is not "" and Text is not "":
-                chck = Post.objects.filter(author = author , Title = Title)
-                if len(chck)<1:
-                    gp = request.POST['Group']
-                    Group = NarGroups.objects.filter(Name = gp)
-                    Today = datetime.datetime.now()
-                    img = UploadPostImage_Form(request.POST, request.FILES)
-                    domain = "https://"
-                    if img.is_valid():
-                        img.save()
-                        domain += request.get_host()
-                        domain += "/blog/static/media/post/{}/{}/{}/{}/{}/".format(Today.year,Today.ctime()[4:7],Today.day,Today.hour,Today.minute) + str(request.FILES['Image']).replace(' ','_')
-                    pst = Post.objects.create(post_status = status ,Title = Title , author = author , Text = Text , ImageUrl=domain ,Group = Group[0] ,publish = Today)
-                    return JsonResponse({'Status':'0x0000'} ,encoder=JSONEncoder)
+            if Title is not "" and Text is not ""  and status is not "":
+                if status is 'draft' or 'published':
+                    chck = Post.objects.filter(author = author , Title = Title)
+                    if len(chck)<1:
+                        gp = request.POST['Group']
+                        Group = NarGroups.objects.filter(Name = gp)
+                        Today = datetime.datetime.now()
+                        img = UploadPostImage_Form(request.POST, request.FILES)
+                        domain = "https://"
+                        if img.is_valid():
+                            img.save()
+                            domain += request.get_host()
+                            domain += "/blog/static/media/post/{}/{}/{}/{}/{}/".format(Today.year,Today.ctime()[4:7],Today.day,Today.hour,Today.minute) + str(request.FILES['Image']).replace(' ','_')
+                        pst = Post.objects.create(post_status = status ,Title = Title , author = author , Text = Text , ImageUrl=domain ,Group = Group[0] ,publish = Today)
+                        return JsonResponse({'Status':'0x0000'} ,encoder=JSONEncoder)
+                    else:
+                        return JsonResponse({'Status':'0x0005'} ,encoder=JSONEncoder)
                 else:
-                    return JsonResponse({'Status':'0x0005'} ,encoder=JSONEncoder)
+                    return JsonResponse({'Status':'0x000C'} ,encoder=JSONEncoder)
             else:
                 return JsonResponse({'Status':'0x0006'} ,encoder=JSONEncoder)
         else:

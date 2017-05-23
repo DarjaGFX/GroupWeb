@@ -145,7 +145,7 @@
         Token,
         Title,
         Text,
-        status,
+        status (draft/published),
         Group,
         Image,
 
