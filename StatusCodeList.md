@@ -3,11 +3,11 @@
 }
 
 0x0001{
-	"username and/or password incorrect"
+	"email and/or password incorrect"
 }
 
 0x0002{
-	"username alredy exists"
+	"Email alredy exists"
 }
 
 0x0003{

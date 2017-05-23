@@ -49,14 +49,13 @@ class members(models.Model):
     Token           = models.CharField(max_length=20 , unique = True , default = CreateToken() )
     ProPic          = models.TextField(null = True , blank=True)
     AccessLevel     = models.CharField(max_length = 10 , choices = status , default ='user' , verbose_name = "سطح کاربری")
-    email           = models.EmailField(null = False , verbose_name = "ایمیل")
-    userName        = models.CharField(max_length=32 , unique = True, null = False , verbose_name = "نام کاربری")
+    email           = models.EmailField(null = False , unique = True , verbose_name = "ایمیل")
     password        = models.CharField(max_length=32 , null = False , verbose_name = "کلمه عبور")
     DisplayUserName = models.CharField(max_length = 15 , null = False , verbose_name = "نام کاربری نمایشی")
     def __str__(self):
         return self.DisplayUserName
     class Meta:
-        unique_together = ("userName", "Token",)
+        unique_together = ("email", "Token",)
 
 class GroupMembers(models.Model):
     user    = models.ForeignKey( members , related_name = 'Group_users' , on_delete = models.CASCADE)
@@ -85,8 +84,8 @@ class Post(models.Model):
 
 
 class Comment(models.Model):
-    post  = models.ForeignKey(Post,related_name="post_comments")
-    member    = models.ForeignKey(members, verbose_name = "نام")
+    post    = models.ForeignKey(Post,related_name="post_comments")
+    member  = models.ForeignKey(members, verbose_name = "نام")
     Text    = models.TextField(verbose_name = "متن")
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)

@@ -51,9 +51,9 @@ def post_detail(request,idd):
 
 @csrf_exempt
 def Narlogin(request):
-    UserName = request.POST['nuser']
+    email = request.POST['email']
     PassWord = request.POST['npass']
-    user = members.objects.filter(userName= UserName.lower() ,password = PassWord)
+    user = members.objects.filter(email= email.lower() ,password = PassWord)
     if len(user)>0:
         return JsonResponse({'Status':'0x0000','Token':user[0].Token, },encoder=JSONEncoder)
     else:
@@ -62,18 +62,19 @@ def Narlogin(request):
 @csrf_exempt
 @require_POST
 def NarSignUp(request):
-    UserName = request.POST['nuser']
     PassWord = request.POST['npass']
     email    = request.POST['nemail']
     dispusn  = request.POST['ndispn']
-    if UserName != "" and PassWord!= "" and email != "" and dispusn != "":
-        user = members.objects.filter(userName= UserName.lower())
+    if PassWord!= "" and email != "" and dispusn != "":
+        user = members.objects.filter(email= email.lower())
         if len(user)>0:
             return JsonResponse({'Status':'0x0002',},encoder=JSONEncoder)
         else:
-            new_member , created = members.objects.get_or_create(email=email , 
-            userName = UserName.lower() , password = PassWord , 
-            DisplayUserName = dispusn , Token = CreateToken() )
+            new_member , created = members.objects.get_or_create(
+                email=email.lower() ,
+                password = PassWord , 
+                DisplayUserName = dispusn ,
+                Token = CreateToken() )
             if created:
                 return JsonResponse({'Status':'0x0000',},encoder=JSONEncoder)
             else:
@@ -96,10 +97,11 @@ def PostDetailView(request):
         for cm in comments:
             response = dict()
             response.update({
-                'Name' : cm.name , 
-                'Text' : cm.Text , 
-                'Date' : str(cm.created.year)+'/'+str(cm.created.month)+'/'+str(cm.created.day) , 
-                'Time' : str(cm.created.hour)+':'+str(cm.created.minute) 
+                'author'   : str(cm.member),
+                'Name'      : cm.name , 
+                'Text'      : cm.Text , 
+                'Date'      : str(cm.created.year)+'/'+str(cm.created.month)+'/'+str(cm.created.day) , 
+                'Time'      : str(cm.created.hour)+':'+str(cm.created.minute) 
             }) 
             coms.append(response)   
     result.update({'Comments':coms})
@@ -116,6 +118,7 @@ def GroupPosts(request):
     for j in range(i-1,-1,-1):
         tpost = dict()
         tpost.update({
+            'profile': str(post[j].author.ProPic),
             'Id'     : post[j].post_id , 
             'Image'  : post[j].ImageUrl ,
             'Title'  : post[j].Title ,
@@ -258,10 +261,10 @@ def setAvailableGroups(request):
         if admin[0].AccessLevel != 'admin':
             return JsonResponse({'Status':'0x0007'},encoder=JSONEncoder)
         else:
-            un = request.POST['user']
+            un = request.POST['email']
             gp = request.POST['group']
             if un != "" and gp != "":
-                user = members.objects.filter(userName = un)
+                user = members.objects.filter(email = un)
                 group = NarGroups.objects.filter(Name = gp)
                 if len(user)>0:
                     if len(group)>0:
@@ -273,5 +276,16 @@ def setAvailableGroups(request):
                     return JsonResponse({'Status':'0x0009'},encoder=JSONEncoder)   
             else:
                  return JsonResponse({'Status':'0x0006'},encoder=JSONEncoder)
+    else:
+        return JsonResponse({'Status':'0x0004'},encoder=JSONEncoder)
+
+@csrf_exempt
+def App_LoadProfile(request):
+    Token = request.POST['Token']
+    user = members.objects.filter(Token = Token)
+    if len(user)>0:
+        u = user[0]
+        res = {'propic':u.ProPic ,'Email':u.email , 'dispun':u.DisplayUserName , 'AccessLevel':u.AccessLevel}
+        return JsonResponse(res,encoder=JSONEncoder)
     else:
         return JsonResponse({'Status':'0x0004'},encoder=JSONEncoder)

@@ -3,7 +3,6 @@
     POST
     
     input(string):
-        nuser(a-z,A-Z,0-9,!@#$,...),
         npass,
         nemail,
         ndispn,
@@ -25,7 +24,21 @@
         Token (optional),
 }
 
+
 ###GET
+
+# Get Personal Profile{
+    {{Domain}}/App/user/profile/get/
+    
+    input(string):
+        Token,
+        
+    output(JSON):
+        propic,
+        Email,
+        dispun,
+        AccessLevel,        
+}
 
 # Get user groups{
     {{Domain}}/App/user/groups/get/
@@ -48,7 +61,8 @@
     
     output(JSON): #this could return a list of output  
         
-        Comments{    
+        Comments{
+            author, 
             Name,   
             Text,
             Date,
@@ -75,6 +89,7 @@
 
     output(JSON):
         Posts{
+            profile,
             Id,
             Image,
             Title,
@@ -124,7 +139,7 @@
     
     input(string):
         Token,
-        user,
+        email,
         group,
 
     output(JSON):
@@ -143,3 +158,4 @@
     output(JSON):
         Status,
 }
+
