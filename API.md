@@ -141,6 +141,7 @@
         Token,
         email,
         group,
+        action('add'/'remove'), 
 
     output(JSON):
         Status,

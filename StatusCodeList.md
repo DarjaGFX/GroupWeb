@@ -41,3 +41,7 @@
 0x000A{
 	"Group Does Not Exist"
 }
+
+0x000B{
+	"Invalid action"
+}

@@ -263,13 +263,21 @@ def setAvailableGroups(request):
         else:
             un = request.POST['email']
             gp = request.POST['group']
+            action = request.POST['action']
             if un != "" and gp != "":
                 user = members.objects.filter(email = un)
                 group = NarGroups.objects.filter(Name = gp)
                 if len(user)>0:
                     if len(group)>0:
-                        GroupMembers.objects.get_or_create(user = user[0] , group = group[0])
-                        return JsonResponse({'Status':'0x0000'},encoder=JSONEncoder)
+                        if action == 'add':
+                            GroupMembers.objects.get_or_create(user = user[0] , group = group[0])
+                            return JsonResponse({'Status':'0x0000'},encoder=JSONEncoder)
+                        elif action == 'remove':
+                            x = GroupMembers.objects.filter(user = user[0] , group = group[0])
+                            x.delete()
+                            return JsonResponse({'Status':'0x0000'},encoder=JSONEncoder)
+                        else:
+                            return JsonResponse({'Status':'0x000B'},encoder=JSONEncoder)
                     else:
                         return JsonResponse({'Status':'0x000A'},encoder=JSONEncoder)
                 else:
