@@ -49,3 +49,7 @@
 0x000C{
 	"Invalid Post Status"
 }
+
+0x000D{
+	"Post unavailable"
+}

@@ -86,26 +86,27 @@ def NarSignUp(request):
 @csrf_exempt
 def PostDetailView(request):
     postid = request.POST['id']
-
     post = Post.objects.filter(post_id = postid)
-    result = dict()
-    tmp = dict()
-    coms = []
-    comments = Comment.objects.filter(postID = post[0] , active = True )
-    if len(comments)>0:
-        coms.clear()
-        for cm in comments:
-            response = dict()
-            response.update({
-                'author'   : str(cm.member),
-                'Name'      : cm.name , 
-                'Text'      : cm.Text , 
-                'Date'      : str(cm.created.year)+'/'+str(cm.created.month)+'/'+str(cm.created.day) , 
-                'Time'      : str(cm.created.hour)+':'+str(cm.created.minute) 
-            }) 
-            coms.append(response)   
-    result.update({'Comments':coms})
-    return JsonResponse(result ,encoder=JSONEncoder)
+    if len(post)>0:
+        result = dict()
+        tmp = dict()
+        coms = []
+        comments = Comment.objects.filter(post = post[0] , active = True )
+        if len(comments)>0:
+            coms.clear()
+            for cm in comments:
+                response = dict()
+                response.update({
+                    'author'   : str(cm.member),
+                    'Text'      : cm.Text , 
+                    'Date'      : str(cm.created.year)+'/'+str(cm.created.month)+'/'+str(cm.created.day) , 
+                    'Time'      : str(cm.created.hour)+':'+str(cm.created.minute) 
+                }) 
+                coms.append(response)   
+        result.update({'Comments':coms})
+        return JsonResponse(result ,encoder=JSONEncoder)
+    else:
+        return JsonResponse({'Status':'0x000D'} ,encoder=JSONEncoder)
 
 @csrf_exempt
 def GroupPosts(request):
