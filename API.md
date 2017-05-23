@@ -79,7 +79,7 @@
     output(JSON): #this could return a list of output  
         
         Comments{
-            author, 
+            authorImg, 
             Name,   
             Text,
             Date,

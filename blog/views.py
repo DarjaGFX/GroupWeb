@@ -97,7 +97,8 @@ def PostDetailView(request):
             for cm in comments:
                 response = dict()
                 response.update({
-                    'author'   : str(cm.member),
+                    'authorImg'    : str(cm.member.ProPic),
+                    'Name'      : str(cm.member), 
                     'Text'      : cm.Text , 
                     'Date'      : str(cm.created.year)+'/'+str(cm.created.month)+'/'+str(cm.created.day) , 
                     'Time'      : str(cm.created.hour)+':'+str(cm.created.minute) 
