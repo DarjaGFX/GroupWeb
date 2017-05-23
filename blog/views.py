@@ -76,6 +76,15 @@ def NarSignUp(request):
                 DisplayUserName = dispusn ,
                 Token = CreateToken() )
             if created:
+                img = UploadProPicForm(request.POST, request.FILES)
+                if img.is_valid():
+                    b4save = img.save(commit = False)
+                    b4save.Token = new_member.Token
+                    b4save.save()  
+                    name, ext = str(request.FILES['propic']).replace(' ','_').split('.')
+                    domain = "https://"+ request.get_host() +'/blog/static/media/usr/{}/profilepicture/profile.'.format(new_member.Token) + ext
+                    new_member.ProPic = domain
+                    new_member.save()
                 return JsonResponse({'Status':'0x0000',},encoder=JSONEncoder)
             else:
                 return JsonResponse({'Status':'0x0003',}, encoder=JSONEncoder)
@@ -161,7 +170,6 @@ def addGroup(request):
             if name is not "" and desc is not "":
                 ngr , created = NarGroups.objects.get_or_create(Name = name , description = desc)
                 img = UploadlogoForm(request.POST, request.FILES)       
-                domain = "https://"
                 if img.is_valid():
                     img.save()  
                     domain += request.get_host()
@@ -328,7 +336,13 @@ def App_EditProfile(request):
     if len(user)>0:
         u = user[0]
         try:
-            u.propic = request.POST['propic']
+            img = UploadProPicForm(request.POST , request.FILES)  
+            if img.is_valid():
+                s = img.save(commit = False)
+                s.Token = Token
+                s.save()
+                name, ext = str(request.FILES['propic']).replace(' ','_').split('.')
+                u.propic = "https://"+ request.get_host() +'/blog/static/media/usr/{}/profilepicture/profile.'.format(Token) + ext
         except:
             pass
         try:

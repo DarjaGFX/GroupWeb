@@ -9,18 +9,36 @@ def CreateToken():
     newToken = str(uuid.uuid4())[:23].replace('-','').lower()
     return newToken
 
+def pro_pic_dir(instance, filename):
+    name, ext = filename.split('.')
+    file_path = 'blog/static/media/usr/{}/profilepicture/profile.{}'.format(instance.Token,ext) 
+    return file_path
+
+def post_img_dir(instance, filename):
+    name, ext = filename.split('.')
+    file_path = 'blog/static/media/usr/{}/posts/{}/img.{}'.format(instance.author,instance.post_id,ext) 
+    return file_path
+
+def group_logo_dir(instance, filename):
+    name, ext = filename.split('.')
+    file_path = 'blog/static/media/GroupLogo/{}/logo.{}'.format(instance.Name,ext) 
+    return file_path
+
 class GroupLogo(models.Model):
-    pic = models.ImageField("Image", upload_to="blog/static/media/GroupLogo/")
+    Name = models.CharField(max_length=150 , null = False )
+    pic = models.ImageField("Image", upload_to=group_logo_dir)
     upload_date=models.DateTimeField(auto_now_add =True)
 
 class ProfilePicture(models.Model):
-    propic = models.ImageField("Image", upload_to="blog/static/media/usr/profilepicture/")
-    upload_date=models.DateTimeField(auto_now_add =True)
-
+    Token        = models.CharField(max_length=20 , default = 1 )
+    propic       = models.ImageField("Image", upload_to= pro_pic_dir )
+    upload_date  = models.DateTimeField(auto_now_add =True)
+        
 class PostImage(models.Model):
-    Today = datetime.datetime.now()
-    Image = models.ImageField("Image", upload_to = "blog/static/media/post/%Y/%h/%d/{}/{}/".format(Today.hour,Today.minute))
-    upload_date=models.DateTimeField(auto_now_add =True)
+    author_token  = models.CharField(max_length=20 , default =1)
+    post_id       = models.AutoField(primary_key=True)
+    Image         = models.ImageField("Image",upload_to =post_img_dir)
+    upload_date   = models.DateTimeField(auto_now_add =True)
     
 class UploadlogoForm(ModelForm):
     class Meta:
