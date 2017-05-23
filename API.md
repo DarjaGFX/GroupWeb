@@ -16,7 +16,7 @@
     POST
     
     input(string):
-        nuser,
+        email,
         npass,
     
     output(JSON):
