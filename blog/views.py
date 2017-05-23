@@ -315,3 +315,30 @@ def App_MemberProfileView(request):
         return JsonResponse(res,encoder=JSONEncoder)
     else:
         return JsonResponse({'Status':'0x0006'},encoder=JSONEncoder)
+
+@csrf_exempt
+def App_EditProfile(request):
+    Token = request.POST['Token']
+    user = members.objects.filter(Token = Token)
+    if len(user)>0:
+        u = user[0]
+        try:
+            u.propic = request.POST['propic']
+        except:
+            pass
+        try:
+            u.email = request.POST['email']
+        except:
+            pass
+        try:
+            u.dispun = request.POST['dispun']
+        except:
+            pass
+        try:
+            u.password = request.POST['password']
+        except:
+            pass
+        u.save()
+        return JsonResponse({'Status':'0x0000'},encoder=JSONEncoder)
+    else:
+        return JsonResponse({'Status':'0x0004'},encoder=JSONEncoder)

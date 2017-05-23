@@ -26,6 +26,7 @@ urlpatterns = [
     url(r'^App/user/groups/set/' , views.setAvailableGroups , name = 'setAvailableGroups'),
     url(r'^App/user/profile/get/' , views.App_LoadProfile , name = 'App_LoadProfile'),
     url(r'^App/user/profile/member/' , views.App_MemberProfileView , name = 'App_MemberProfileView'),
+    url(r'^App/user/profile/set/' , views.App_EditProfile , name = 'App_EditProfile'),
 
     #url(r'^add/group/', views.addGroup , name = 'addGroup'),
     #url(r'^$', views.postListView.as_view(), name= 'post_list'),

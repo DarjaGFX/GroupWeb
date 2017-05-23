@@ -123,6 +123,21 @@
 
 ###SET
 
+# Set Personal Profile{
+    {{Domain}}/App/user/profile/set/
+    
+    input(string):
+        Token,
+        propic (optional),
+        email (optional),
+        dispun (optional),
+        password (optional),
+        
+    output(JSON):
+        Status,
+}
+     
+
 # Set New Post{
     {{Domain}}/App/Post/set/
     
