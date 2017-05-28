@@ -145,9 +145,9 @@ def GroupPosts(request):
 @csrf_exempt
 def fetchGroupNames(request):
     gp = NarGroups.objects.all()
+    gps = []
+    result = dict()
     if len(gp)>0:
-        result = dict()
-        gps = []
         for g in gp:
             tmp = dict()
             tmp.update({ 
@@ -155,8 +155,8 @@ def fetchGroupNames(request):
                 'logo' : g.logo
             })
             gps.append(tmp)
-        result.update({'Groups':gps})
-        return JsonResponse(result ,encoder=JSONEncoder)
+    result.update({'Groups':gps})
+    return JsonResponse(result ,encoder=JSONEncoder)
 
 
 @csrf_exempt
