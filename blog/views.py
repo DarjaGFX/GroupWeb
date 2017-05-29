@@ -242,8 +242,8 @@ def addcomment(request):
 
 @csrf_exempt
 def getAvailableGroups(request):
-    Token = request.POST['Token']
-    user = members.objects.filter(Token = Token)
+    Email = request.POST['Email']
+    user = members.objects.filter(email = Email)
     res = dict()
     arr = []
     if len(user)>0:
@@ -306,7 +306,22 @@ def App_LoadProfile(request):
     user = members.objects.filter(Token = Token)
     if len(user)>0:
         u = user[0]
-        res = {'propic':u.ProPic ,'Email':u.email , 'dispun':u.DisplayUserName , 'AccessLevel':u.AccessLevel}
+        arr = []
+        if u.AccessLevel == 'user':
+            return JsonResponse({'Status':'0x0007'},encoder=JSONEncoder)
+        elif u.AccessLevel == 'member':
+            gp = GroupMembers.objects.filter(user = u)
+            for n in gp :
+                tmp = dict()
+                tmp.update({'Name':str(n.group)})
+                arr.append(tmp)    
+        elif u.AccessLevel == 'admin':
+            ng = NarGroups.objects.all()
+            for n in ng :
+                tmp = dict()
+                tmp.update({'Name':n.Name})
+                arr.append(tmp)
+        res = {'propic':u.ProPic ,'Email':u.email , 'dispun':u.DisplayUserName , 'AccessLevel':u.AccessLevel , 'Groups' : arr}
         return JsonResponse(res,encoder=JSONEncoder)
     else:
         return JsonResponse({'Status':'0x0004'},encoder=JSONEncoder)

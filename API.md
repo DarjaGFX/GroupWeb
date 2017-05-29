@@ -54,14 +54,17 @@
         propic,
         Email,
         dispun,
-        AccessLevel,        
+        AccessLevel, 
+        Groups[
+            Name,
+        ],       
 }
 
 # Get user groups{
     {{Domain}}/App/user/groups/get/
     
     input(string):
-        Token,
+        Email,
         
     output(JSON):
         Groups[
