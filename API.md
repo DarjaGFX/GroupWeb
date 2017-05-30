@@ -66,6 +66,7 @@
     output(JSON):
         Groups[
             Name,
+            Logo,
         ]
 }
 

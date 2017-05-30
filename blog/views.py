@@ -253,13 +253,13 @@ def getAvailableGroups(request):
             gp = GroupMembers.objects.filter(user = user[0])
             for n in gp :
                 tmp = dict()
-                tmp.update({'Name':str(n.group)})
+                tmp.update({'Name':str(n.group) , 'Logo':n.logo})
                 arr.append(tmp)    
         elif user[0].AccessLevel == 'admin':
             ng = NarGroups.objects.all()
             for n in ng :
                 tmp = dict()
-                tmp.update({'Name':n.Name})
+                tmp.update({'Name':n.Name, 'Logo':n.logo})
                 arr.append(tmp)
     else:
         return JsonResponse({'Status':'0x0004'},encoder=JSONEncoder)
