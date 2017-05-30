@@ -306,22 +306,9 @@ def App_LoadProfile(request):
     user = members.objects.filter(Token = Token)
     if len(user)>0:
         u = user[0]
-        arr = []
         if u.AccessLevel == 'user':
             return JsonResponse({'Status':'0x0007'},encoder=JSONEncoder)
-        elif u.AccessLevel == 'member':
-            gp = GroupMembers.objects.filter(user = u)
-            for n in gp :
-                tmp = dict()
-                tmp.update({'Name':str(n.group)})
-                arr.append(tmp)    
-        elif u.AccessLevel == 'admin':
-            ng = NarGroups.objects.all()
-            for n in ng :
-                tmp = dict()
-                tmp.update({'Name':n.Name})
-                arr.append(tmp)
-        res = {'propic':u.ProPic ,'Email':u.email , 'dispun':u.DisplayUserName , 'AccessLevel':u.AccessLevel , 'Groups' : arr}
+        res = {'propic':u.ProPic ,'Email':u.email , 'dispun':u.DisplayUserName , 'AccessLevel':u.AccessLevel}
         return JsonResponse(res,encoder=JSONEncoder)
     else:
         return JsonResponse({'Status':'0x0004'},encoder=JSONEncoder)

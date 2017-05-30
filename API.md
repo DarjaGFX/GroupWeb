@@ -55,9 +55,6 @@
         Email,
         dispun,
         AccessLevel, 
-        Groups[
-            Name,
-        ],       
 }
 
 # Get user groups{
