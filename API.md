@@ -132,7 +132,8 @@
         propic (optional),
         email (optional),
         dispun (optional),
-        password (optional),
+        OldPass (optional),
+        NewPass (optional),
         
     output(JSON):
         Status,

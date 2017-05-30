@@ -356,7 +356,11 @@ def App_EditProfile(request):
         except:
             pass
         try:
-            u.password = request.POST['password']
+            prevpass = request.POST['OldPass']
+            if prevpass == p.password:
+                u.password = request.POST['NewPass']
+            else:
+                return JsonResponse({'Status':'0x000E'},encoder=JSONEncoder)
         except:
             pass
         u.save()

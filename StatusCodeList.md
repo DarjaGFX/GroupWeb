@@ -53,3 +53,7 @@
 0x000D{
 	"Post unavailable"
 }
+
+0x000E{
+	"Password is incorrect"
+}
