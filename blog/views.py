@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.hashers import make_password , check_password
 from .models import *
 from .forms import *
 from django.http import JsonResponse , HttpResponseRedirect
@@ -8,6 +9,7 @@ from json import JSONEncoder
 from django.views.decorators.csrf import csrf_exempt
 import uuid
 from django.views.decorators.http import require_POST
+# from django.core.mail import send_mail
 
 def CreateToken():
     newToken = str(uuid.uuid4())[:23].replace('-','').lower()
@@ -53,8 +55,8 @@ def post_detail(request,idd):
 def Narlogin(request):
     email = request.POST['email']
     PassWord = request.POST['npass']
-    user = members.objects.filter(email= email.lower() ,password = PassWord)
-    if len(user)>0:
+    user = members.objects.filter(email= email.lower() )
+    if len(user)>0 and check_password(PassWord , user[0].password):
         return JsonResponse({'Status':'0x0000','Token':user[0].Token, },encoder=JSONEncoder)
     else:
         return JsonResponse({'Status':'0x0001' },encoder=JSONEncoder)
@@ -62,10 +64,10 @@ def Narlogin(request):
 @csrf_exempt
 @require_POST
 def NarSignUp(request):
-    PassWord = request.POST['npass']
+    PassWord = make_password(request.POST['npass'], hasher='default')
     email    = request.POST['nemail']
     dispusn  = request.POST['ndispn']
-    if PassWord!= "" and email != "" and dispusn != "":
+    if PassWord and email  and dispusn :
         user = members.objects.filter(email= email.lower())
         if len(user)>0:
             return JsonResponse({'Status':'0x0002',},encoder=JSONEncoder)
@@ -76,15 +78,18 @@ def NarSignUp(request):
                 DisplayUserName = dispusn ,
                 Token = CreateToken() )
             if created:
-                img = UploadProPicForm(request.POST, request.FILES)
-                if img.is_valid():
-                    b4save = img.save(commit = False)
-                    b4save.Token = new_member.Token
-                    b4save.save()  
-                    name, ext = str(request.FILES['propic']).replace(' ','_').split('.')
-                    domain = "https://"+ request.get_host() +'/blog/static/media/usr/{}/profilepicture/profile.'.format(new_member.Token) + ext
-                    new_member.ProPic = domain
-                    new_member.save()
+                try:
+                    img = UploadProPicForm(request.POST, request.FILES)
+                    if img.is_valid():
+                        b4save = img.save(commit = False)
+                        b4save.Token = new_member.Token
+                        b4save.save()  
+                        name, ext = str(request.FILES['propic']).replace(' ','_').split('.')
+                        domain = "https://"+ request.get_host() +'/blog/static/media/usr/{}/profilepicture/profile.'.format(new_member.Token) + ext
+                        new_member.ProPic = domain
+                        new_member.save()
+                except:
+                    pass
                 return JsonResponse({'Status':'0x0000',},encoder=JSONEncoder)
             else:
                 return JsonResponse({'Status':'0x0003',}, encoder=JSONEncoder)
