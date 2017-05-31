@@ -322,8 +322,6 @@ def App_LoadProfile(request):
     user = members.objects.filter(Token = Token)
     if len(user)>0:
         u = user[0]
-        if u.AccessLevel == 'user':
-            return JsonResponse({'Status':'0x0007'},encoder=JSONEncoder)
         res = {'propic':u.ProPic ,'Email':u.email , 'dispun':u.DisplayUserName , 'AccessLevel':u.AccessLevel}
         return JsonResponse(res,encoder=JSONEncoder)
     else:
