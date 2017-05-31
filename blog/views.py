@@ -9,12 +9,13 @@ from json import JSONEncoder
 from django.views.decorators.csrf import csrf_exempt
 import uuid
 from django.views.decorators.http import require_POST
-# from django.core.mail import send_mail
+from django.core.mail import send_mail
 
 def CreateToken():
     newToken = str(uuid.uuid4())[:23].replace('-','').lower()
     try:
         tokenExists = members.objects.get(Token = newToken)
+        # andMayBeHere = activation.objects.get(code = newToken)
         CreateToken()
     except:
         return newToken
@@ -57,7 +58,10 @@ def Narlogin(request):
     PassWord = request.POST['npass']
     user = members.objects.filter(email= email.lower() )
     if len(user)>0 and check_password(PassWord , user[0].password):
-        return JsonResponse({'Status':'0x0000','Token':user[0].Token, },encoder=JSONEncoder)
+        if user[0].active:
+            return JsonResponse({'Status':'0x0000','Token':user[0].Token, },encoder=JSONEncoder)
+        else:
+            return JsonResponse({'Status':'0x000F' },encoder=JSONEncoder)    
     else:
         return JsonResponse({'Status':'0x0001' },encoder=JSONEncoder)
 
@@ -77,7 +81,14 @@ def NarSignUp(request):
                 password = PassWord , 
                 DisplayUserName = dispusn ,
                 Token = CreateToken() )
+            
             if created:
+                code = CreateToken()
+                actv = activation.objects.create(email = email , code = code)
+                subject = 'فعال سازی اکانت ناردون'
+                message = '{} .سلام {} عزیز, برای فعال سازی اکانت ناردون خود روی لینک زیر کلیک کنید. چنانچه شما در ناردون ثبت نام نکرده اید این ایمیل را نادیده بگیرید'.format(dispusn,request.build_absolute_uri('/activate/')+'?ac='+code)
+                fmail = 'ali.jafari20@gmail.com'
+                send_mail(subject, message, fmail,[email])
                 try:
                     img = UploadProPicForm(request.POST, request.FILES)
                     if img.is_valid():
@@ -372,3 +383,16 @@ def App_EditProfile(request):
         return JsonResponse({'Status':'0x0000'},encoder=JSONEncoder)
     else:
         return JsonResponse({'Status':'0x0004'},encoder=JSONEncoder)
+
+        
+def activate(request):
+    code = request.GET['ac']
+    req = activation.objects.filter(code = code)
+    if len(req)>0 :  # if code is in temporary db, read the data and create the user
+        mmbr = members.objects.get(email = req[0].email)
+        mmbr.active = True
+        mmbr.save()
+        req[0].delete()
+        return JsonResponse({'message':'ok'},encoder=JSONEncoder)
+    else:
+        return JsonResponse({'message':'ridi'},encoder=JSONEncoder)

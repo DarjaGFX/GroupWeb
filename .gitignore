@@ -1,3 +1,4 @@
 *.pyc
 blog/migrations/
+web/settings.py
 *.sqlite3

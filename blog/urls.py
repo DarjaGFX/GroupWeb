@@ -2,6 +2,8 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
+    url(r'^activate/', views.activate , name = 'activate'),
+    
     # WebSite views
     url(r'^$', views.post_list , name = 'post_list'),
     url(r'^(?P<idd>\d+)/$',views.post_detail, name = 'post_detail'),
@@ -27,8 +29,8 @@ urlpatterns = [
     url(r'^App/user/profile/get/' , views.App_LoadProfile , name = 'App_LoadProfile'),
     url(r'^App/user/profile/member/' , views.App_MemberProfileView , name = 'App_MemberProfileView'),
     url(r'^App/user/profile/set/' , views.App_EditProfile , name = 'App_EditProfile'),
-    url(r'^App/email/' , views.test , name = 'test'),
 
+    # url(r'^App/email/' , views.test , name = 'test'),
     #url(r'^add/group/', views.addGroup , name = 'addGroup'),
     #url(r'^$', views.postListView.as_view(), name= 'post_list'),
     #url(r'^(?P<year>\d{4})/(?P<month>\d{1})/(?P<day>\d{2})/(?P<post>[-\w]+)/$',views.post_detail, name = 'post_detail'),

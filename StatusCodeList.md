@@ -57,3 +57,7 @@
 0x000E{
 	"Password is incorrect"
 }
+
+0x000F{
+	"account needs veriffication"
+}
