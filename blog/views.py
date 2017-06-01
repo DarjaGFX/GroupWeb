@@ -76,34 +76,31 @@ def NarSignUp(request):
         if len(user)>0:
             return JsonResponse({'Status':'0x0002',},encoder=JSONEncoder)
         else:
-            new_member , created = members.objects.get_or_create(
+            
+            code = CreateToken()
+            subject = 'فعال سازی اکانت ناردون'
+            message = '.سلام {} عزیز \n برای فعال سازی اکانت ناردون خود روی لینک زیر کلیک کنید. چنانچه شما در ناردون ثبت نام نکرده اید این ایمیل را نادیده بگیرید \n {}'.format( dispusn , request.build_absolute_uri('/activate/')+'?ac='+code)
+            fmail = 'ali.jafari20@gmail.com'
+            send_mail(subject, message, fmail,[email])
+            actv = activation.objects.create(email = email , code = code)
+            new_member = members.objects.create(
                 email=email.lower() ,
                 password = PassWord , 
                 DisplayUserName = dispusn ,
                 Token = CreateToken() )
-            
-            if created:
-                code = CreateToken()
-                actv = activation.objects.create(email = email , code = code)
-                subject = 'فعال سازی اکانت ناردون'
-                message = '{} .سلام {} عزیز, برای فعال سازی اکانت ناردون خود روی لینک زیر کلیک کنید. چنانچه شما در ناردون ثبت نام نکرده اید این ایمیل را نادیده بگیرید'.format(dispusn,request.build_absolute_uri('/activate/')+'?ac='+code)
-                fmail = 'ali.jafari20@gmail.com'
-                send_mail(subject, message, fmail,[email])
-                try:
-                    img = UploadProPicForm(request.POST, request.FILES)
-                    if img.is_valid():
-                        b4save = img.save(commit = False)
-                        b4save.Token = new_member.Token
-                        b4save.save()  
-                        name, ext = str(request.FILES['propic']).replace(' ','_').split('.')
-                        domain = "https://"+ request.get_host() +'/blog/static/media/usr/{}/profilepicture/profile.'.format(new_member.Token) + ext
-                        new_member.ProPic = domain
-                        new_member.save()
-                except:
-                    pass
-                return JsonResponse({'Status':'0x0000',},encoder=JSONEncoder)
-            else:
-                return JsonResponse({'Status':'0x0003',}, encoder=JSONEncoder)
+            try:
+                img = UploadProPicForm(request.POST, request.FILES)
+                if img.is_valid():
+                    b4save = img.save(commit = False)
+                    b4save.Token = new_member.Token
+                    b4save.save()  
+                    name, ext = str(request.FILES['propic']).replace(' ','_').split('.')
+                    domain = "https://"+ request.get_host() +'/blog/static/media/usr/{}/profilepicture/profile.'.format(new_member.Token) + ext
+                    new_member.ProPic = domain
+                    new_member.save()
+            except:
+                pass
+            return JsonResponse({'Status':'0x0000',},encoder=JSONEncoder)
     else:
         return JsonResponse({'Status':'0x0006',}, encoder=JSONEncoder)
 
@@ -378,18 +375,20 @@ def App_EditProfile(request):
                 arr.append(tmp)
                 res.update({'Email':arr})
             else:
-                chk = members.objects.filter(email = newEmail)
-                if len(chk)>0:
-                    tmp = {'Status':'0x0002'}
-                    arr = []
-                    arr.append(tmp)
-                    res.update({'Email':arr})
-                else:
-                    u.email = newEmail
-                    tmp = {'Status':'0x0000'}
-                    arr = []
-                    arr.append(tmp)
-                    res.update({'Email':arr})
+                if newEmail != u.email :
+                    chk = members.objects.filter(email = newEmail)
+                    if len(chk)>0:
+                        tmp = {'Status':'0x0002'}
+                        arr = []
+                        arr.append(tmp)
+                        res.update({'Email':arr})
+                    else:
+                        u.email = newEmail
+                        # send veriffication Email
+                        tmp = {'Status':'0x0000'}
+                        arr = []
+                        arr.append(tmp)
+                        res.update({'Email':arr})
 
         except:
             pass
@@ -445,4 +444,4 @@ def activate(request):
         req[0].delete()
         return JsonResponse({'message':'ok'},encoder=JSONEncoder)
     else:
-        return JsonResponse({'message':'ridi'},encoder=JSONEncoder)
+        return JsonResponse({'message':'Activation link expired'},encoder=JSONEncoder)
