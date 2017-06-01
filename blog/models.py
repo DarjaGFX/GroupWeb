@@ -67,7 +67,7 @@ class members(models.Model):
     Token           = models.CharField(max_length=20 , unique = True , default = CreateToken() )
     ProPic          = models.TextField(null = True , blank=True)
     AccessLevel     = models.CharField(max_length = 10 , choices = status , default ='user' , verbose_name = "سطح کاربری")
-    email           = models.EmailField(null = False , unique = True , verbose_name = "ایمیل")
+    email           = models.EmailField(null = False , blank=False, unique = True , verbose_name = "ایمیل")
     password        = models.CharField(max_length=100 , null = False , verbose_name = "کلمه عبور")
     DisplayUserName = models.CharField(max_length = 15 , null = False , verbose_name = "نام کاربری نمایشی")
     active          = models.BooleanField(default= False)

@@ -136,7 +136,19 @@
         NewPass (optional),
         
     output(JSON):
-        Status,
+        Status (optional),
+        PassWord (optional)[
+            Status,
+        ],
+        DisplayUName (optional) [
+            Status,
+        ],
+        Email (optional) [
+            Status,
+        ],
+        ProfilePicture (optional) [
+            Status,
+        ],
 }
      
 

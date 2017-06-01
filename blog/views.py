@@ -351,6 +351,8 @@ def App_EditProfile(request):
     user = members.objects.filter(Token = Token)
     if len(user)>0:
         u = user[0]
+        res = dict()
+        arr = []
         try:
             img = UploadProPicForm(request.POST , request.FILES)  
             if img.is_valid():
@@ -359,26 +361,76 @@ def App_EditProfile(request):
                 s.save()
                 name, ext = str(request.FILES['propic']).replace(' ','_').split('.')
                 u.propic = "https://"+ request.get_host() +'/blog/static/media/usr/{}/profilepicture/profile.'.format(Token) + ext
+                tmp = {'Status':'0x0000'}
+                arr = []
+                arr.append(tmp)
+                res.update({'ProfilePicture':arr})
         except:
-            pass
+            tmp = {'Status':'0x0000'}
+            arr.append(tmp)
+            res.update({'ProfilePicture':arr})
+            
         try:
-            u.email = request.POST['email']
-        except:
-            pass
-        try:
-            u.dispun = request.POST['dispun']
-        except:
-            pass
-        try:
-            prevpass = request.POST['OldPass']
-            if prevpass == p.password:
-                u.password = request.POST['NewPass']
+            newEmail = request.POST['email']
+            if newEmail == "":
+                tmp = {'Status':'0x0006'}
+                arr = []
+                arr.append(tmp)
+                res.update({'Email':arr})
             else:
-                return JsonResponse({'Status':'0x000E'},encoder=JSONEncoder)
+                chk = members.objects.filter(email = newEmail)
+                if len(chk)>0:
+                    tmp = {'Status':'0x0002'}
+                    arr = []
+                    arr.append(tmp)
+                    res.update({'Email':arr})
+                else:
+                    u.email = newEmail
+                    tmp = {'Status':'0x0000'}
+                    arr = []
+                    arr.append(tmp)
+                    res.update({'Email':arr})
+
+        except:
+            pass
+        try:
+            dispn = request.POST['dispun']
+            if dispn == "":
+                tmp = {'Status':'0x0006'}
+                arr = []
+                arr.append(tmp)
+                res.update({'DisplayUName':arr})
+            else:
+                u.dispun = request.POST['dispun']
+                tmp = {'Status':'0x0000'}
+                arr = []
+                arr.append(tmp)
+                res.update({'DisplayUName':arr})
+        except:
+            pass
+        try:
+            if check_password(request.POST['OldPass'] , p.password):
+                pwd = request.POST['NewPass']
+                if pwd == "":
+                    tmp = {'Status':'0x0006'}
+                    arr = []
+                    arr.append(tmp)
+                    res.update({'PassWord':arr})
+                else:
+                    u.password = make_password(request.POST['NewPass'] , hasher='default')
+                    tmp = {'Status':'0x0000'}
+                    arr = []
+                    arr.append(tmp)
+                    res.update({'PassWord':arr})
+            else:
+                tmp = {'Status':'0x000E'}
+                arr = []
+                arr.append(tmp)
+                res.update({'PassWord':arr})
         except:
             pass
         u.save()
-        return JsonResponse({'Status':'0x0000'},encoder=JSONEncoder)
+        return JsonResponse(res,encoder=JSONEncoder)
     else:
         return JsonResponse({'Status':'0x0004'},encoder=JSONEncoder)
 
