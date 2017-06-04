@@ -95,7 +95,7 @@ def NarSignUp(request):
                     b4save.Token = new_member.Token
                     b4save.save()  
                     name, ext = str(request.FILES['propic']).replace(' ','_').split('.')
-                    domain = "https://"+ request.get_host() +'/blog/static/media/usr/{}/profilepicture/profile.'.format(new_member.Token) + ext
+                    domain = request.build_absolute_uri('/blog/static/media/usr/{}/profilepicture/profile.'.format(new_member.Token)) + ext
                     new_member.ProPic = domain
                     new_member.save()
             except:
@@ -180,19 +180,21 @@ def addGroup(request):
     user = members.objects.filter(Token = Token)
     if len(user) > 0:
         if str(user[0].AccessLevel) == 'admin':
-            if name is not "" and desc is not "":
+            if name !="" and desc != "":
                 ngr , created = NarGroups.objects.get_or_create(Name = name , description = desc)
-                img = UploadlogoForm(request.POST, request.FILES)       
-                if img.is_valid():
-                    img.save()  
-                    domain += request.get_host()
-                    domain += "/blog/static/media/GroupLogo/" + str(request.FILES['pic']).replace(' ','_')
-                    #TODO: rename uploaded image to a meaningful name !
-                ngr.logo = domain
+                try:
+                    img = UploadlogoForm(request.POST, request.FILES)       
+                    if img.is_valid():
+                        img.save()  
+                        domain = request.build_absolute_uri('/blog/static/media/GroupLogo/') + str(request.FILES['pic']).replace(' ','_')
+                        #TODO: rename uploaded image to a meaningful name !
+                    ngr.logo = domain
+                except:
+                    pass
                 ngr.save()
                 return JsonResponse({'Status':'0x0000'} ,encoder=JSONEncoder)
             else:
-                return JsonResponse({'Status':'0x0003'} ,encoder=JSONEncoder)
+                return JsonResponse({'Status':'0x0006'} ,encoder=JSONEncoder)
         else:
             return JsonResponse({'Status':'0x0007'} ,encoder=JSONEncoder)
     else:
@@ -349,7 +351,6 @@ def App_EditProfile(request):
     if len(user)>0:
         u = user[0]
         res = dict()
-        arr = []
         try:
             img = UploadProPicForm(request.POST , request.FILES)  
             if img.is_valid():
@@ -357,11 +358,9 @@ def App_EditProfile(request):
                 s.Token = Token
                 s.save()
                 name, ext = str(request.FILES['propic']).replace(' ','_').split('.')
-                u.propic = "https://"+ request.get_host() +'/blog/static/media/usr/{}/profilepicture/profile.'.format(Token) + ext
+                u.propic =  request.build_absolute_uri('/blog/static/media/usr/{}/profilepicture/profile.'.format(Token)) + ext
                 tmp = {'Status':'0x0000'}
-                arr = []
-                arr.append(tmp)
-                res.update({'ProfilePicture':arr})
+                res.update({'ProfilePicture':tmp})
         except:
             tmp = {'Status':'0x0000'}
             arr.append(tmp)
@@ -371,24 +370,25 @@ def App_EditProfile(request):
             newEmail = request.POST['email']
             if newEmail == "":
                 tmp = {'Status':'0x0006'}
-                arr = []
-                arr.append(tmp)
-                res.update({'Email':arr})
+                res.update({'Email':tmp})
             else:
                 if newEmail != u.email :
                     chk = members.objects.filter(email = newEmail)
                     if len(chk)>0:
                         tmp = {'Status':'0x0002'}
-                        arr = []
-                        arr.append(tmp)
-                        res.update({'Email':arr})
+                        res.update({'Email':tmp})
                     else:
-                        u.email = newEmail
-                        # send veriffication Email
+                        code = CreateToken()
+                        subject = 'تغییر ایمیل اکانت ناردون'
+                        message = '.سلام {} عزیز \n برای تغببر اکانت ناردون خود روی لینک زیر کلیک کنید. {}'.format( user[0].DisplayUserName , request.build_absolute_uri('/App/user/profile/acticate/')+'?ac='+code)
+                        fmail = 'ali.jafari20@gmail.com'
+                        send_mail(subject, message, fmail,[newEmail])
+                        newmc , created = MailChange.objects.get_or_create(code  = code ,primarymail= u.email , secondmail = newEmail)
                         tmp = {'Status':'0x0000'}
-                        arr = []
-                        arr.append(tmp)
-                        res.update({'Email':arr})
+                        res.update({'Email':tmp})
+                else:
+                    tmp = {'Status':'0x0000'}
+                    res.update({'Email':tmp})
 
         except:
             pass
@@ -396,15 +396,11 @@ def App_EditProfile(request):
             dispn = request.POST['dispun']
             if dispn == "":
                 tmp = {'Status':'0x0006'}
-                arr = []
-                arr.append(tmp)
-                res.update({'DisplayUName':arr})
+                res.update({'DisplayUName':tmp})
             else:
                 u.dispun = request.POST['dispun']
                 tmp = {'Status':'0x0000'}
-                arr = []
-                arr.append(tmp)
-                res.update({'DisplayUName':arr})
+                res.update({'DisplayUName':tmp})
         except:
             pass
         try:
@@ -412,20 +408,14 @@ def App_EditProfile(request):
                 pwd = request.POST['NewPass']
                 if pwd == "":
                     tmp = {'Status':'0x0006'}
-                    arr = []
-                    arr.append(tmp)
-                    res.update({'PassWord':arr})
+                    res.update({'PassWord':tmp})
                 else:
                     u.password = make_password(request.POST['NewPass'] , hasher='default')
                     tmp = {'Status':'0x0000'}
-                    arr = []
-                    arr.append(tmp)
-                    res.update({'PassWord':arr})
+                    res.update({'PassWord':tmp})
             else:
                 tmp = {'Status':'0x000E'}
-                arr = []
-                arr.append(tmp)
-                res.update({'PassWord':arr})
+                res.update({'PassWord':tmp})
         except:
             pass
         u.save()
@@ -442,6 +432,18 @@ def activate(request):
         mmbr.active = True
         mmbr.save()
         req[0].delete()
+        return JsonResponse({'message':'ok'},encoder=JSONEncoder)
+    else:
+        return JsonResponse({'message':'Activation link expired'},encoder=JSONEncoder)
+
+def secondarymailacticate(request):
+    code = request.GET['ac']
+    updt = MailChange.objects.filter(code = code)
+    if len(updt)>0:
+        mbr = members.objects.get(email = updt[0].primarymail)
+        mbr.email = updt[0].secondmail
+        mbr.save()
+        updt[0].delete()
         return JsonResponse({'message':'ok'},encoder=JSONEncoder)
     else:
         return JsonResponse({'message':'Activation link expired'},encoder=JSONEncoder)

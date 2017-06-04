@@ -25,7 +25,7 @@
 }
 
 
-###GET
+##GET
 
 # Get Member Profile{
     {{Domain}}/App/user/profile/member/
@@ -122,7 +122,7 @@
 
 
 
-###SET
+##SET
 
 # Set Personal Profile{
     {{Domain}}/App/user/profile/set/

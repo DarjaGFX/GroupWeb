@@ -82,6 +82,13 @@ class activation(models.Model):
     class Meta:
         unique_together = ("email", "code",)
 
+class MailChange(models.Model):
+    primarymail = models.EmailField(null = False)
+    secondmail = models.EmailField(null = False)
+    code  = models.CharField(max_length=20 , unique = True , default = CreateToken())
+    class Meta:
+        unique_together = ("primarymail", "secondmail",)
+
 class GroupMembers(models.Model):
     user    = models.ForeignKey( members , related_name = 'Group_users' , on_delete = models.CASCADE)
     group   = models.ForeignKey( NarGroups , related_name = 'User_groups' , on_delete = models.CASCADE)
