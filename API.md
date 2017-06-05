@@ -24,6 +24,17 @@
         Token (optional),
 }
 
+# Check Mail Availability{
+    {{Domain}}App/check/mail/
+    POST
+
+    input(string):
+        email,
+
+    output(JSON):
+        Status,
+}
+
 
 ##GET
 

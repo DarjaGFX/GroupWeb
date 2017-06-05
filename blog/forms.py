@@ -1,5 +1,4 @@
 from django import forms
-
 from .models import *
 
 class form_Group(forms.ModelForm):

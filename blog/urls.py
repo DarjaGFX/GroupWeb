@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
     url(r'^activate/', views.activate , name = 'activate'),
+    url(r'^App/user/profile/acticate/', views.secondarymailacticate , name = 'secondarymailacticate'),
     
     # WebSite views
     url(r'^$', views.post_list , name = 'post_list'),
@@ -29,8 +30,8 @@ urlpatterns = [
     url(r'^App/user/profile/get/' , views.App_LoadProfile , name = 'App_LoadProfile'),
     url(r'^App/user/profile/member/' , views.App_MemberProfileView , name = 'App_MemberProfileView'),
     url(r'^App/user/profile/set/' , views.App_EditProfile , name = 'App_EditProfile'),
-    url(r'^App/user/profile/acticate/', views.secondarymailacticate , name = 'secondarymailacticate'),
 
+    url(r'^App/check/mail/', views.MailAvailability , name = 'MailAvailability'),
     # url(r'^App/email/' , views.test , name = 'test'),
     #url(r'^add/group/', views.addGroup , name = 'addGroup'),
     #url(r'^$', views.postListView.as_view(), name= 'post_list'),

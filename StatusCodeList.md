@@ -61,3 +61,7 @@
 0x000F{
 	"account needs veriffication"
 }
+
+0x0010{
+	"input string is not in a correct format"
+}

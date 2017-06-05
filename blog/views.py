@@ -10,6 +10,8 @@ from django.views.decorators.csrf import csrf_exempt
 import uuid
 from django.views.decorators.http import require_POST
 from django.core.mail import send_mail
+from django.core.validators import validate_email
+
 
 def CreateToken():
     newToken = str(uuid.uuid4())[:23].replace('-','').lower()
@@ -350,7 +352,7 @@ def App_EditProfile(request):
     user = members.objects.filter(Token = Token)
     if len(user)>0:
         u = user[0]
-        res = dict()
+        arr = []
         try:
             img = UploadProPicForm(request.POST , request.FILES)  
             if img.is_valid():
@@ -359,24 +361,23 @@ def App_EditProfile(request):
                 s.save()
                 name, ext = str(request.FILES['propic']).replace(' ','_').split('.')
                 u.propic =  request.build_absolute_uri('/blog/static/media/usr/{}/profilepicture/profile.'.format(Token)) + ext
-                tmp = {'Status':'0x0000'}
-                res.update({'ProfilePicture':tmp})
+                tmp = {'ProfilePicture':'0x0000'}
+                arr.append(tmp)
         except:
-            tmp = {'Status':'0x0000'}
+            tmp = {'ProfilePicture':'0x0000'}
             arr.append(tmp)
-            res.update({'ProfilePicture':arr})
             
         try:
             newEmail = request.POST['email']
             if newEmail == "":
-                tmp = {'Status':'0x0006'}
-                res.update({'Email':tmp})
+                tmp = {'Email':'0x0006'}
+                arr.append(tmp)
             else:
                 if newEmail != u.email :
                     chk = members.objects.filter(email = newEmail)
                     if len(chk)>0:
-                        tmp = {'Status':'0x0002'}
-                        res.update({'Email':tmp})
+                        tmp = {'Email':'0x0002'}
+                        arr.append(tmp)
                     else:
                         code = CreateToken()
                         subject = 'تغییر ایمیل اکانت ناردون'
@@ -384,42 +385,41 @@ def App_EditProfile(request):
                         fmail = 'ali.jafari20@gmail.com'
                         send_mail(subject, message, fmail,[newEmail])
                         newmc , created = MailChange.objects.get_or_create(code  = code ,primarymail= u.email , secondmail = newEmail)
-                        tmp = {'Status':'0x0000'}
-                        res.update({'Email':tmp})
+                        tmp = {'Email':'0x0000'}
+                        arr.append(tmp)
                 else:
-                    tmp = {'Status':'0x0000'}
-                    res.update({'Email':tmp})
-
+                    tmp = {'Email':'0x0000'}
+                    arr.append(tmp)
         except:
             pass
         try:
             dispn = request.POST['dispun']
             if dispn == "":
-                tmp = {'Status':'0x0006'}
-                res.update({'DisplayUName':tmp})
+                tmp = {'DisplayUName':'0x0006'}
+                arr.append(tmp)
             else:
-                u.dispun = request.POST['dispun']
-                tmp = {'Status':'0x0000'}
-                res.update({'DisplayUName':tmp})
+                u.DisplayUserName = request.POST['dispun']
+                tmp = {'DisplayUName':'0x0000'}
+                arr.append(tmp)
         except:
             pass
         try:
             if check_password(request.POST['OldPass'] , p.password):
                 pwd = request.POST['NewPass']
                 if pwd == "":
-                    tmp = {'Status':'0x0006'}
-                    res.update({'PassWord':tmp})
+                    tmp = {'PassWord':'0x0006'}
+                    arr.append(tmp)
                 else:
                     u.password = make_password(request.POST['NewPass'] , hasher='default')
-                    tmp = {'Status':'0x0000'}
-                    res.update({'PassWord':tmp})
+                    tmp = {'PassWord':'0x0000'}
+                    arr.append(tmp)
             else:
-                tmp = {'Status':'0x000E'}
-                res.update({'PassWord':tmp})
+                tmp = {'PassWord':'0x000E'}
+                arr.append(tmp)
         except:
             pass
         u.save()
-        return JsonResponse(res,encoder=JSONEncoder)
+        return JsonResponse({'Status':arr},encoder=JSONEncoder)
     else:
         return JsonResponse({'Status':'0x0004'},encoder=JSONEncoder)
 
@@ -447,3 +447,16 @@ def secondarymailacticate(request):
         return JsonResponse({'message':'ok'},encoder=JSONEncoder)
     else:
         return JsonResponse({'message':'Activation link expired'},encoder=JSONEncoder)
+
+@csrf_exempt
+def MailAvailability(request):
+    arg = request.POST['email']
+    try: 
+        if validate_email(arg) == None:
+            user = members.objects.filter(email = arg)
+            if len(user)>0:
+                return JsonResponse({'Status':'0x0002'},encoder=JSONEncoder)
+            else:
+                return JsonResponse({'Status':'0x0000'},encoder=JSONEncoder)
+    except:
+        return JsonResponse({'Status':'0x0010'},encoder=JSONEncoder)
