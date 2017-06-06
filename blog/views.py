@@ -22,6 +22,24 @@ def CreateToken():
     except:
         return newToken
 
+def is_Email_format(mail):
+    arg = str(mail)
+    try:
+        if validate_email(arg) == None:
+            return True
+    except:
+        return False
+
+def is_Email_used(mail):
+    arg = str(mail)
+    user = members.objects.filter(email = arg)
+    if len(user)>0:
+        return True
+    else:
+        return False
+
+############################################################
+
 def post_list(request):
     posts = Post.objects.filter(post_status = "published")
     return render(request , 'blog/post/list.html' , {'posts':posts})
@@ -58,51 +76,56 @@ def post_detail(request,idd):
 def Narlogin(request):
     email = request.POST['email']
     PassWord = request.POST['npass']
-    user = members.objects.filter(email= email.lower() )
-    if len(user)>0 and check_password(PassWord , user[0].password):
-        if user[0].active:
-            return JsonResponse({'Status':'0x0000','Token':user[0].Token, },encoder=JSONEncoder)
+    if is_Email_format(email):
+        user = members.objects.filter(email= email.lower() )
+        if len(user)>0 and check_password(PassWord , user[0].password):
+            if user[0].active:
+                return JsonResponse({'Status':'0x0000','Token':user[0].Token, },encoder=JSONEncoder)
+            else:
+                return JsonResponse({'Status':'0x000F' },encoder=JSONEncoder)    
         else:
-            return JsonResponse({'Status':'0x000F' },encoder=JSONEncoder)    
+            return JsonResponse({'Status':'0x0001' },encoder=JSONEncoder)
     else:
-        return JsonResponse({'Status':'0x0001' },encoder=JSONEncoder)
-
+        return JsonResponse({'Status':'0x0010' },encoder=JSONEncoder)
+    
 @csrf_exempt
 @require_POST
 def NarSignUp(request):
     PassWord = make_password(request.POST['npass'], hasher='default')
     email    = request.POST['nemail']
     dispusn  = request.POST['ndispn']
-    if PassWord and email  and dispusn :
-        user = members.objects.filter(email= email.lower())
-        if len(user)>0:
-            return JsonResponse({'Status':'0x0002',},encoder=JSONEncoder)
-        else:
-            
-            code = CreateToken()
-            subject = 'فعال سازی اکانت ناردون'
-            message = '.سلام {} عزیز \n برای فعال سازی اکانت ناردون خود روی لینک زیر کلیک کنید. چنانچه شما در ناردون ثبت نام نکرده اید این ایمیل را نادیده بگیرید \n {}'.format( dispusn , request.build_absolute_uri('/activate/')+'?ac='+code)
-            fmail = 'ali.jafari20@gmail.com'
-            send_mail(subject, message, fmail,[email])
-            actv = activation.objects.create(email = email , code = code)
-            new_member = members.objects.create(
-                email=email.lower() ,
-                password = PassWord , 
-                DisplayUserName = dispusn ,
-                Token = CreateToken() )
-            try:
-                img = UploadProPicForm(request.POST, request.FILES)
-                if img.is_valid():
-                    b4save = img.save(commit = False)
-                    b4save.Token = new_member.Token
-                    b4save.save()  
-                    name, ext = str(request.FILES['propic']).replace(' ','_').split('.')
-                    domain = request.build_absolute_uri('/blog/static/media/usr/{}/profilepicture/profile.'.format(new_member.Token)) + ext
-                    new_member.ProPic = domain
-                    new_member.save()
-            except:
-                pass
-            return JsonResponse({'Status':'0x0000',},encoder=JSONEncoder)
+    if PassWord and dispusn :
+        if is_Email_format(email):
+            if is_Email_used(email):
+                return JsonResponse({'Status':'0x0002',},encoder=JSONEncoder)
+            else:
+                
+                code = CreateToken()
+                subject = 'فعال سازی اکانت ناردون'
+                message = '.سلام {} عزیز \n برای فعال سازی اکانت ناردون خود روی لینک زیر کلیک کنید. چنانچه شما در ناردون ثبت نام نکرده اید این ایمیل را نادیده بگیرید \n {}'.format( dispusn , request.build_absolute_uri('/activate/')+'?ac='+code)
+                fmail = 'ali.jafari20@gmail.com'
+                send_mail(subject, message, fmail,[email])
+                actv = activation.objects.create(email = email , code = code)
+                new_member = members.objects.create(
+                    email=email.lower() ,
+                    password = PassWord , 
+                    DisplayUserName = dispusn ,
+                    Token = CreateToken() )
+                try:
+                    img = UploadProPicForm(request.POST, request.FILES)
+                    if img.is_valid():
+                        b4save = img.save(commit = False)
+                        b4save.Token = new_member.Token
+                        b4save.save()  
+                        name, ext = str(request.FILES['propic']).replace(' ','_').split('.')
+                        domain = request.build_absolute_uri('/blog/static/media/usr/{}/profilepicture/profile.'.format(new_member.Token)) + ext
+                        new_member.ProPic = domain
+                        new_member.save()
+                except:
+                    pass
+                return JsonResponse({'Status':'0x0000',},encoder=JSONEncoder)
+         else:
+            return JsonResponse({'Status':'0x0010',},encoder=JSONEncoder)
     else:
         return JsonResponse({'Status':'0x0006',}, encoder=JSONEncoder)
 
@@ -369,13 +392,12 @@ def App_EditProfile(request):
             
         try:
             newEmail = request.POST['email']
-            if newEmail == "":
+            if not is_Email_format(newEmail):
                 tmp = {'Email':'0x0006'}
                 arr.append(tmp)
             else:
                 if newEmail != u.email :
-                    chk = members.objects.filter(email = newEmail)
-                    if len(chk)>0:
+                    if is_Email_used(newEmail):
                         tmp = {'Email':'0x0002'}
                         arr.append(tmp)
                     else:
@@ -436,7 +458,7 @@ def activate(request):
     else:
         return JsonResponse({'message':'Activation link expired'},encoder=JSONEncoder)
 
-def secondarymailacticate(request):
+def secondarymailactivate(request):
     code = request.GET['ac']
     updt = MailChange.objects.filter(code = code)
     if len(updt)>0:
@@ -451,12 +473,11 @@ def secondarymailacticate(request):
 @csrf_exempt
 def MailAvailability(request):
     arg = request.POST['email']
-    try: 
-        if validate_email(arg) == None:
-            user = members.objects.filter(email = arg)
-            if len(user)>0:
-                return JsonResponse({'Status':'0x0002'},encoder=JSONEncoder)
-            else:
-                return JsonResponse({'Status':'0x0000'},encoder=JSONEncoder)
-    except:
+    if is_Email_format(arg):
+        if is_Email_used(arg):
+            return JsonResponse({'Status':'0x0002'},encoder=JSONEncoder)
+        else:
+            return JsonResponse({'Status':'0x0000'},encoder=JSONEncoder)
+    else:
         return JsonResponse({'Status':'0x0010'},encoder=JSONEncoder)
+

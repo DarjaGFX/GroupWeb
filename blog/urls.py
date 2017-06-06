@@ -3,7 +3,7 @@ from . import views
 
 urlpatterns = [
     url(r'^activate/', views.activate , name = 'activate'),
-    url(r'^App/user/profile/acticate/', views.secondarymailacticate , name = 'secondarymailacticate'),
+    url(r'^App/user/profile/acticate/', views.secondarymailactivate , name = 'secondarymailacticate'),
     
     # WebSite views
     url(r'^$', views.post_list , name = 'post_list'),
