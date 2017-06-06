@@ -35,6 +35,17 @@
         Status,
 }
 
+# Forget PassWord{
+    {{Domain}}App/user/profile/ForgetPass/
+    POST
+
+    input(string):
+        email,
+
+    output(JSON):
+        Status,
+}
+
 
 ##GET
 

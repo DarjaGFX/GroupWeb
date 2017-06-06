@@ -89,6 +89,10 @@ class MailChange(models.Model):
     class Meta:
         unique_together = ("primarymail", "secondmail",)
 
+class forget_pass(models.Model):
+    email = models.EmailField(null = False , unique = True )
+    code  = models.CharField(max_length=20 , unique = True , default = CreateToken())
+
 class GroupMembers(models.Model):
     user    = models.ForeignKey( members , related_name = 'Group_users' , on_delete = models.CASCADE)
     group   = models.ForeignKey( NarGroups , related_name = 'User_groups' , on_delete = models.CASCADE)

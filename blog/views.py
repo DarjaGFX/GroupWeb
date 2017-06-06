@@ -481,3 +481,23 @@ def MailAvailability(request):
     else:
         return JsonResponse({'Status':'0x0010'},encoder=JSONEncoder)
 
+@csrf_exempt
+def forget_pass_request(request):
+    mail = request.POST['Emial']
+    if is_Email_format(mail):
+        if is_Email_used(mail):
+            user = members.objects.filter(email = mail)
+            code = CreateToken()[:5]
+            subject = 'ریست پسورد اکانت ناردون'
+            message = '.سلام {} عزیز \n برای ایجاد پسورد جدید از کد زیر استفاده کنید. {}'.format( user[0].DisplayUserName , code)
+            fmail = 'ali.jafari20@gmail.com'
+            send_mail(subject, message, fmail,[newEmail])
+            newmc , created = forget_pass.objects.get_or_create(code  = code ,primarymail= u.email , secondmail = newEmail)
+            if not created:
+                newmc.code = code
+                newmc.save()
+            return JsonResponse({'Status':'0x0000'},encoder=JSONEncoder)
+        else:
+            return JsonResponse({'Status':'0x0009'},encoder=JSONEncoder)
+    else:
+        return JsonResponse({'Status':'0x0010'},encoder=JSONEncoder)

@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
     url(r'^activate/', views.activate , name = 'activate'),
+    url(r'^App/user/profile/ForgetPass/', views.forget_pass_request , name = 'forget_pass_request'),
     url(r'^App/user/profile/acticate/', views.secondarymailactivate , name = 'secondarymailacticate'),
     
     # WebSite views
