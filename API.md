@@ -228,3 +228,15 @@
         Status,
 }
 
+# Set new Password{
+    {{Domain}}/App/user/profile/ChangeForgetPass/
+    
+    input(string):
+        Email,
+        code,
+        password,
+
+    output(JSON):
+        Status,
+}
+

@@ -99,7 +99,6 @@ def NarSignUp(request):
             if is_Email_used(email):
                 return JsonResponse({'Status':'0x0002',},encoder=JSONEncoder)
             else:
-                
                 code = CreateToken()
                 subject = 'فعال سازی اکانت ناردون'
                 message = '.سلام {} عزیز \n برای فعال سازی اکانت ناردون خود روی لینک زیر کلیک کنید. چنانچه شما در ناردون ثبت نام نکرده اید این ایمیل را نادیده بگیرید \n {}'.format( dispusn , request.build_absolute_uri('/activate/')+'?ac='+code)
@@ -124,7 +123,7 @@ def NarSignUp(request):
                 except:
                     pass
                 return JsonResponse({'Status':'0x0000',},encoder=JSONEncoder)
-         else:
+        else:
             return JsonResponse({'Status':'0x0010',},encoder=JSONEncoder)
     else:
         return JsonResponse({'Status':'0x0006',}, encoder=JSONEncoder)
@@ -283,7 +282,7 @@ def addcomment(request):
 @csrf_exempt
 def getAvailableGroups(request):
     Email = request.POST['Email']
-    user = members.objects.filter(email = Email)
+    user = members.objects.filter(email = Email.lower())
     res = dict()
     arr = []
     if len(user)>0:
@@ -318,7 +317,7 @@ def setAvailableGroups(request):
             gp = request.POST['group']
             action = request.POST['action']
             if un != "" and gp != "":
-                user = members.objects.filter(email = un)
+                user = members.objects.filter(email = un.lower())
                 group = NarGroups.objects.filter(Name = gp)
                 if len(user)>0:
                     if len(group)>0:
@@ -392,21 +391,21 @@ def App_EditProfile(request):
             
         try:
             newEmail = request.POST['email']
-            if not is_Email_format(newEmail):
+            if not is_Email_format(newEmail.lower()):
                 tmp = {'Email':'0x0006'}
                 arr.append(tmp)
             else:
                 if newEmail != u.email :
-                    if is_Email_used(newEmail):
+                    if is_Email_used(newEmail.lower()):
                         tmp = {'Email':'0x0002'}
                         arr.append(tmp)
                     else:
                         code = CreateToken()
                         subject = 'تغییر ایمیل اکانت ناردون'
-                        message = '.سلام {} عزیز \n برای تغببر اکانت ناردون خود روی لینک زیر کلیک کنید. {}'.format( user[0].DisplayUserName , request.build_absolute_uri('/App/user/profile/acticate/')+'?ac='+code)
+                        message = '.سلام {} عزیز \n برای تغببر اکانت ناردون خود روی لینک زیر کلیک کنید. {}'.format( u.DisplayUserName , request.build_absolute_uri('/App/user/profile/acticate/')+'?ac='+code)
                         fmail = 'ali.jafari20@gmail.com'
                         send_mail(subject, message, fmail,[newEmail])
-                        newmc , created = MailChange.objects.get_or_create(code  = code ,primarymail= u.email , secondmail = newEmail)
+                        newmc , created = MailChange.objects.get_or_create(code  = code ,primarymail= u.email , secondmail = newEmail.lower())
                         tmp = {'Email':'0x0000'}
                         arr.append(tmp)
                 else:
@@ -473,8 +472,8 @@ def secondarymailactivate(request):
 @csrf_exempt
 def MailAvailability(request):
     arg = request.POST['email']
-    if is_Email_format(arg):
-        if is_Email_used(arg):
+    if is_Email_format(arg.lower()):
+        if is_Email_used(arg.lower()):
             return JsonResponse({'Status':'0x0002'},encoder=JSONEncoder)
         else:
             return JsonResponse({'Status':'0x0000'},encoder=JSONEncoder)
@@ -484,19 +483,44 @@ def MailAvailability(request):
 @csrf_exempt
 def forget_pass_request(request):
     mail = request.POST['Emial']
-    if is_Email_format(mail):
-        if is_Email_used(mail):
-            user = members.objects.filter(email = mail)
-            code = CreateToken()[:5]
+    if is_Email_format(mail.lower()):
+        if is_Email_used(mail.lower()):
+            user = members.objects.filter(email = mail.lower())
+            u = user[0]
+            code = CreateToken()[:10]
             subject = 'ریست پسورد اکانت ناردون'
-            message = '.سلام {} عزیز \n برای ایجاد پسورد جدید از کد زیر استفاده کنید. {}'.format( user[0].DisplayUserName , code)
+            message = '.سلام {} عزیز \n برای ایجاد پسورد جدید از کد زیر استفاده کنید. {}'.format( u.DisplayUserName , code)
             fmail = 'ali.jafari20@gmail.com'
             send_mail(subject, message, fmail,[newEmail])
-            newmc , created = forget_pass.objects.get_or_create(code  = code ,primarymail= u.email , secondmail = newEmail)
+            newmc , created = forget_pass.objects.get_or_create(code  = code ,email= u.email)
             if not created:
                 newmc.code = code
                 newmc.save()
             return JsonResponse({'Status':'0x0000'},encoder=JSONEncoder)
+        else:
+            return JsonResponse({'Status':'0x0009'},encoder=JSONEncoder)
+    else:
+        return JsonResponse({'Status':'0x0010'},encoder=JSONEncoder)
+
+@csrf_exempt
+def change_forgotten_password(request):
+    mail = request.POST['Emial']
+    code = request.POST['code']
+    password = request.POST['password']
+    if is_Email_format(mail.lower()):
+        if is_Email_used(mail.lower()):
+            u = members.objects.get(email = mail.lower())
+            if code and password:
+                req = forget_pass.objects.filter(code  = code ,email= u.email)
+                if len(req)>0:
+                    u = make_password(password , hasher='default' )
+                    u.save()
+                    req[0].delete()
+                    JsonResponse({'Status':'0x0000'},encoder=JSONEncoder)
+                else:
+                    return JsonResponse({'Status':'0x000B'},encoder=JSONEncoder)
+            else:
+                return JsonResponse({'Status':'0x0006'},encoder=JSONEncoder)
         else:
             return JsonResponse({'Status':'0x0009'},encoder=JSONEncoder)
     else:
