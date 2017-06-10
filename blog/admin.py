@@ -9,7 +9,7 @@ class Post_admin(admin.ModelAdmin):
     list_filter 		= ('post_status','created','publish','author')
     search_fields 		= ('Title','Text')
     #prepopulated_fields = {'slug':('Title',)}
-    date_hierarchy 		= 'publish'
+    # date_hierarchy 		= 'publish'
     raw_id_fields 		= ('author',)
     ordering 			= ['post_status' , 'publish']
 

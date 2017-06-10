@@ -7,10 +7,11 @@ from .forms import *
 from django.http import JsonResponse , HttpResponseRedirect
 from json import JSONEncoder
 from django.views.decorators.csrf import csrf_exempt
-import uuid
 from django.views.decorators.http import require_POST
 from django.core.mail import send_mail
 from django.core.validators import validate_email
+import uuid
+import jdatetime
 
 
 def CreateToken():
@@ -240,7 +241,7 @@ def addNewPost(request):
                     if len(chck)<1:
                         gp = request.POST['Group']
                         Group = NarGroups.objects.filter(Name = gp)
-                        Today = datetime.datetime.now()
+                        Today = jdatetime.datetime.now()
                         img = UploadPostImage_Form(request.POST, request.FILES)
                         domain = "https://"
                         if img.is_valid():
@@ -371,7 +372,7 @@ def App_MemberProfileView(request):
 @csrf_exempt
 def App_EditProfile(request):
     Token = request.POST['Token']
-    user = members.objects.filter(Token = Token)
+    user = members.objects.filter(Token = Token , active = True)
     if len(user)>0:
         u = user[0]
         arr = []
@@ -425,13 +426,13 @@ def App_EditProfile(request):
         except:
             pass
         try:
-            if check_password(request.POST['OldPass'] , p.password):
+            if check_password(request.POST['OldPass'] , u.password):
                 pwd = request.POST['NewPass']
                 if pwd == "":
                     tmp = {'PassWord':'0x0006'}
                     arr.append(tmp)
                 else:
-                    u.password = make_password(request.POST['NewPass'] , hasher='default')
+                    u.password = make_password(pwd , hasher='default')
                     tmp = {'PassWord':'0x0000'}
                     arr.append(tmp)
             else:

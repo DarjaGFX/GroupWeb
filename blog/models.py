@@ -3,6 +3,8 @@ from django.contrib.auth.models import User , Group
 import datetime
 from django.db import models
 from django.forms import ModelForm
+from django_jalali.db import models as jmodels
+import jdatetime
 import uuid
 
 def CreateToken():
@@ -27,18 +29,18 @@ def group_logo_dir(instance, filename):
 class GroupLogo(models.Model):
     Name = models.CharField(max_length=150 , null = False )
     pic = models.ImageField("Image", upload_to=group_logo_dir)
-    upload_date=models.DateTimeField(auto_now_add =True)
+    upload_date= jmodels.jDateTimeField(auto_now_add =True)
 
 class ProfilePicture(models.Model):
     Token        = models.CharField(max_length=20 , default = 1 )
     propic       = models.ImageField("Image", upload_to= pro_pic_dir )
-    upload_date  = models.DateTimeField(auto_now_add =True)
+    upload_date  = jmodels.jDateTimeField(auto_now_add =True)
         
 class PostImage(models.Model):
     author_token  = models.CharField(max_length=20 , default =1)
     post_id       = models.AutoField(primary_key=True)
     Image         = models.ImageField("Image",upload_to =post_img_dir)
-    upload_date   = models.DateTimeField(auto_now_add =True)
+    upload_date   = jmodels.jDateTimeField(auto_now_add =True)
     
 class UploadlogoForm(ModelForm):
     class Meta:
@@ -70,6 +72,7 @@ class members(models.Model):
     email           = models.EmailField(null = False , blank=False, unique = True , verbose_name = "ایمیل")
     password        = models.CharField(max_length=100 , null = False , verbose_name = "کلمه عبور")
     DisplayUserName = models.CharField(max_length = 15 , null = False , verbose_name = "نام کاربری نمایشی")
+    created         = jmodels.jDateTimeField(auto_now_add = True)
     active          = models.BooleanField(default= False)
     def __str__(self):
         return self.DisplayUserName
@@ -108,11 +111,9 @@ class Post(models.Model):
     Text        = models.TextField(verbose_name = "متن")
     ImageUrl    = models.TextField(null = True , blank = True)
     Group       = models.ForeignKey(NarGroups , default= "عمومی" , related_name = 'group_posts' , verbose_name = "گروه")
-    publish     = models.DateTimeField(default = datetime.datetime.now, verbose_name = "تاریخ انتشار")
-    created     = models.DateTimeField(auto_now_add = True)
-    updated     = models.DateTimeField(auto_now = True)
-    like        = models.BigIntegerField(default=0)
-    disLike     = models.BigIntegerField(default=0)
+    publish     = jmodels.jDateTimeField(default = jdatetime.datetime.now, verbose_name = "تاریخ انتشار")
+    created     = jmodels.jDateTimeField(auto_now_add = True)
+    updated     = jmodels.jDateTimeField(auto_now = True)
 
     def __str__(self):
         return self.Title
@@ -124,11 +125,9 @@ class Comment(models.Model):
     post    = models.ForeignKey(Post,related_name="post_comments")
     member  = models.ForeignKey(members, verbose_name = "نام")
     Text    = models.TextField(verbose_name = "متن")
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
+    created = jmodels.jDateTimeField(auto_now_add=True)
+    updated = jmodels.jDateTimeField(auto_now=True)
     active  = models.BooleanField(default= False)
-    like    = models.BigIntegerField(default=0)
-    disLike = models.BigIntegerField(default=0)
 
     class Meta:
         ordering=('created',)

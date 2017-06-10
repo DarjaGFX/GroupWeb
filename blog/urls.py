@@ -4,7 +4,7 @@ from . import views
 urlpatterns = [
     url(r'^activate/', views.activate , name = 'activate'),
     url(r'^App/user/profile/ForgetPass/', views.forget_pass_request , name = 'forget_pass_request'),
-    url(r'^App/user/profile/acticate/', views.secondarymailactivate , name = 'secondarymailacticate'),
+    url(r'^App/user/profile/activate/', views.secondarymailactivate , name = 'secondarymailacticate'),
     url(r'^App/user/profile/ChangeForgetPass/', views.change_forgotten_password , name = 'change_forgotten_password'),
     
     # WebSite views

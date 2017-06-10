@@ -109,7 +109,7 @@ LANGUAGE_CODE = 'en-us'
 # import locale
 # locale.setlocale(locale.LC_ALL, "fa_IR")
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Tehran'
 
 USE_I18N = True
 
