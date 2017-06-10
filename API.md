@@ -25,7 +25,7 @@
 }
 
 # Check Mail Availability{
-    {{Domain}}App/check/mail/
+    {{Domain}}/App/check/mail/
     POST
 
     input(string):
@@ -36,7 +36,7 @@
 }
 
 # Forget PassWord{
-    {{Domain}}App/user/profile/ForgetPass/
+    {{Domain}}/App/user/profile/ForgetPass/
     POST
 
     input(string):
@@ -46,6 +46,16 @@
         Status,
 }
 
+# resend veriffication Mail{
+    {{Domain}}/App/user/profile/reactivate/
+    POST
+
+    input(string):
+        email,
+
+    output(JSON):
+        Status,
+}
 
 ##GET
 

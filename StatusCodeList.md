@@ -67,5 +67,9 @@
 }
 
 0x0011{
-	"account is inactive"
+	"account is already active"
+}
+
+0x0012{
+	"Email Does Not Exists"
 }

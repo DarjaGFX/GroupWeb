@@ -98,7 +98,10 @@ def NarSignUp(request):
     if PassWord and dispusn :
         if is_Email_format(email):
             if is_Email_used(email):
-                return JsonResponse({'Status':'0x0002',},encoder=JSONEncoder)
+                if members.objects.get(email = email).active:
+                    return JsonResponse({'Status':'0x000F',},encoder=JSONEncoder)
+                else:
+                    return JsonResponse({'Status':'0x0002',},encoder=JSONEncoder)
             else:
                 code = CreateToken()
                 subject = 'فعال سازی اکانت ناردون'
@@ -488,7 +491,7 @@ def forget_pass_request(request):
         if is_Email_used(mail.lower()):
             user = members.objects.filter(email = mail.lower() , active = True)
             if not len(user)>0:
-                return JsonResponse({'Status':'0x0011'},encoder=JSONEncoder)                
+                return JsonResponse({'Status':'0x000F'},encoder=JSONEncoder)                
             else:
                 u = user[0]
                 code = CreateToken()[:10]
@@ -527,5 +530,47 @@ def change_forgotten_password(request):
                 return JsonResponse({'Status':'0x0006'},encoder=JSONEncoder)
         else:
             return JsonResponse({'Status':'0x0009'},encoder=JSONEncoder)
+    else:
+        return JsonResponse({'Status':'0x0010'},encoder=JSONEncoder)
+
+@csrf_exempt
+def resend_veriffication_mail(request):
+    mail = request.POST['Emial']
+    mail = mail.lower()
+    if is_Email_format(mail):
+        if is_Email_used(mail):
+            mmbr = members.objects.get(email = mail)
+            if mmbr.active:
+                return JsonResponse({'Status':'0x0011'},encoder=JSONEncoder)
+            else:
+                code = CreateToken()
+                subject = 'فعال سازی اکانت ناردون'
+                message = '.سلام {} عزیز \n برای فعال سازی اکانت ناردون خود روی لینک زیر کلیک کنید. چنانچه شما در ناردون ثبت نام نکرده اید این ایمیل را نادیده بگیرید \n {}'.format( mmbr.DisplayUserName , request.build_absolute_uri('/activate/')+'?ac='+code)
+                fmail = 'ali.jafari20@gmail.com'
+                send_mail(subject, message, fmail,[mail])
+                actv , created = activation.objects.get_or_create(email = mail , code = code)
+                if not created:
+                    actv.code = code
+                    actv.save()
+                return JsonResponse({'Status':'0x0000'},encoder=JSONEncoder)
+        else:
+            try:
+                mbr = MailChange.objects.filter(secondmail = mail)
+                if len(mbr)>0:
+                    u = members.objects.get(email = mmbr[0].primarymail)
+                    code = CreateToken()
+                    subject = 'تغییر ایمیل اکانت ناردون'
+                    message = '.سلام {} عزیز \n برای تغببر اکانت ناردون خود روی لینک زیر کلیک کنید. {}'.format( u.DisplayUserName , request.build_absolute_uri('/App/user/profile/acticate/')+'?ac='+code)
+                    fmail = 'ali.jafari20@gmail.com'
+                    send_mail(subject, message, fmail,[newEmail])
+                    newmc , created = MailChange.objects.get_or_create(code  = code ,primarymail= u.email , secondmail = newEmail.lower())
+                    if not created:
+                        newmc.code = code
+                        newmc.save()
+                    return JsonResponse({'Status':'0x0000'},encoder=JSONEncoder)
+                else:
+                    return JsonResponse({'Status':'0x00012'},encoder=JSONEncoder)
+            except:
+                return JsonResponse({'Status':'0x0009'},encoder=JSONEncoder)
     else:
         return JsonResponse({'Status':'0x0010'},encoder=JSONEncoder)
