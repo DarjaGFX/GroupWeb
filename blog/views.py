@@ -23,7 +23,7 @@ def CreateToken():
         return newToken
 
 def is_Email_format(mail):
-    arg = str(mail)
+    arg = str(mail).lower()
     try:
         if validate_email(arg) == None:
             return True
@@ -31,7 +31,7 @@ def is_Email_format(mail):
         return False
 
 def is_Email_used(mail):
-    arg = str(mail)
+    arg = str(mail).lower()
     user = members.objects.filter(email = arg)
     if len(user)>0:
         return True
@@ -485,18 +485,21 @@ def forget_pass_request(request):
     mail = request.POST['Emial']
     if is_Email_format(mail.lower()):
         if is_Email_used(mail.lower()):
-            user = members.objects.filter(email = mail.lower())
-            u = user[0]
-            code = CreateToken()[:10]
-            subject = 'ریست پسورد اکانت ناردون'
-            message = '.سلام {} عزیز \n برای ایجاد پسورد جدید از کد زیر استفاده کنید. {}'.format( u.DisplayUserName , code)
-            fmail = 'ali.jafari20@gmail.com'
-            send_mail(subject, message, fmail,[newEmail])
-            newmc , created = forget_pass.objects.get_or_create(code  = code ,email= u.email)
-            if not created:
-                newmc.code = code
-                newmc.save()
-            return JsonResponse({'Status':'0x0000'},encoder=JSONEncoder)
+            user = members.objects.filter(email = mail.lower() , active = True)
+            if not len(user)>0:
+                return JsonResponse({'Status':'0x0011'},encoder=JSONEncoder)                
+            else:
+                u = user[0]
+                code = CreateToken()[:10]
+                subject = 'ریست پسورد اکانت ناردون'
+                message = '.سلام {} عزیز \n برای ایجاد پسورد جدید از کد زیر استفاده کنید. {}'.format( u.DisplayUserName , code)
+                fmail = 'ali.jafari20@gmail.com'
+                send_mail(subject, message, fmail,[newEmail])
+                newmc , created = forget_pass.objects.get_or_create(code  = code ,email= u.email)
+                if not created:
+                    newmc.code = code
+                    newmc.save()
+                return JsonResponse({'Status':'0x0000'},encoder=JSONEncoder)
         else:
             return JsonResponse({'Status':'0x0009'},encoder=JSONEncoder)
     else:

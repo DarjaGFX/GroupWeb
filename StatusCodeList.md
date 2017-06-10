@@ -65,3 +65,7 @@
 0x0010{
 	"input string is not in a correct format"
 }
+
+0x0011{
+	"account is inactive"
+}
