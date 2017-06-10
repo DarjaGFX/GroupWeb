@@ -410,6 +410,9 @@ def App_EditProfile(request):
                         fmail = 'ali.jafari20@gmail.com'
                         send_mail(subject, message, fmail,[newEmail])
                         newmc , created = MailChange.objects.get_or_create(code  = code ,primarymail= u.email , secondmail = newEmail.lower())
+                        if not created:
+                            newmc.code = code
+                            newmc.save()
                         tmp = {'Email':'0x0000'}
                         arr.append(tmp)
                 else:
@@ -554,23 +557,6 @@ def resend_veriffication_mail(request):
                     actv.save()
                 return JsonResponse({'Status':'0x0000'},encoder=JSONEncoder)
         else:
-            try:
-                mbr = MailChange.objects.filter(secondmail = mail)
-                if len(mbr)>0:
-                    u = members.objects.get(email = mmbr[0].primarymail)
-                    code = CreateToken()
-                    subject = 'تغییر ایمیل اکانت ناردون'
-                    message = '.سلام {} عزیز \n برای تغببر اکانت ناردون خود روی لینک زیر کلیک کنید. {}'.format( u.DisplayUserName , request.build_absolute_uri('/App/user/profile/acticate/')+'?ac='+code)
-                    fmail = 'ali.jafari20@gmail.com'
-                    send_mail(subject, message, fmail,[newEmail])
-                    newmc , created = MailChange.objects.get_or_create(code  = code ,primarymail= u.email , secondmail = newEmail.lower())
-                    if not created:
-                        newmc.code = code
-                        newmc.save()
-                    return JsonResponse({'Status':'0x0000'},encoder=JSONEncoder)
-                else:
-                    return JsonResponse({'Status':'0x00012'},encoder=JSONEncoder)
-            except:
-                return JsonResponse({'Status':'0x0009'},encoder=JSONEncoder)
+            return JsonResponse({'Status':'0x0009'},encoder=JSONEncoder)
     else:
         return JsonResponse({'Status':'0x0010'},encoder=JSONEncoder)
