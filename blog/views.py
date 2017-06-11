@@ -527,7 +527,7 @@ def change_forgotten_password(request):
             if code and password:
                 req = forget_pass.objects.filter(code  = code ,email= u.email)
                 if len(req)>0:
-                    u = make_password(password , hasher='default' )
+                    u.password = make_password(password , hasher='default' )
                     u.save()
                     req[0].delete()
                     return JsonResponse({'Status':'0x0000'},encoder=JSONEncoder)
