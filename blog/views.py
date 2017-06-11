@@ -409,10 +409,12 @@ def App_EditProfile(request):
                         message = '.سلام {} عزیز \n برای تغببر اکانت ناردون خود روی لینک زیر کلیک کنید. {}'.format( u.DisplayUserName , request.build_absolute_uri('/App/user/profile/acticate/')+'?ac='+code)
                         fmail = 'ali.jafari20@gmail.com'
                         send_mail(subject, message, fmail,[newEmail])
-                        newmc , created = MailChange.objects.get_or_create(code  = code ,primarymail= u.email , secondmail = newEmail.lower())
-                        if not created:
-                            newmc.code = code
-                            newmc.save()
+                        newmc = MailChange.objects.filter(primarymail= u.email , secondmail = newEmail.lower())
+                        if len(newmc)>0:
+                            newmc[0].code = code
+                            newmc[0].save()
+                        else:
+                            MailChange.objects.create(code  = code ,primarymail= u.email , secondmail = newEmail.lower())
                         tmp = {'Email':'0x0000'}
                         arr.append(tmp)
                 else:
@@ -489,7 +491,7 @@ def MailAvailability(request):
 
 @csrf_exempt
 def forget_pass_request(request):
-    mail = request.POST['Emial']
+    mail = request.POST['email']
     if is_Email_format(mail.lower()):
         if is_Email_used(mail.lower()):
             user = members.objects.filter(email = mail.lower() , active = True)
@@ -497,15 +499,17 @@ def forget_pass_request(request):
                 return JsonResponse({'Status':'0x000F'},encoder=JSONEncoder)                
             else:
                 u = user[0]
-                code = CreateToken()[:4]
+                code = CreateToken()[:4].upper()
                 subject = 'ریست پسورد اکانت ناردون'
-                message = '.سلام {} عزیز \n برای ایجاد پسورد جدید از کد زیر استفاده کنید. {}'.format( u.DisplayUserName , code)
+                message = '.سلام {} عزیز \n برای ایجاد پسورد جدید از کد زیر استفاده کنید.\n {}'.format( u.DisplayUserName , code)
                 fmail = 'ali.jafari20@gmail.com'
-                send_mail(subject, message, fmail,[newEmail])
-                newmc , created = forget_pass.objects.get_or_create(code  = code ,email= u.email)
-                if not created:
-                    newmc.code = code
-                    newmc.save()
+                send_mail(subject, message, fmail,[mail])
+                newmc = forget_pass.objects.filter(email= u.email)
+                if len(newmc)>0:
+                    newmc[0].code = code
+                    newmc[0].save()
+                else:
+                    forget_pass.objects.create(code  = code ,email= u.email)
                 return JsonResponse({'Status':'0x0000'},encoder=JSONEncoder)
         else:
             return JsonResponse({'Status':'0x0009'},encoder=JSONEncoder)
@@ -514,7 +518,7 @@ def forget_pass_request(request):
 
 @csrf_exempt
 def change_forgotten_password(request):
-    mail = request.POST['Emial']
+    mail = request.POST['email']
     code = request.POST['code']
     password = request.POST['password']
     if is_Email_format(mail.lower()):
@@ -538,7 +542,7 @@ def change_forgotten_password(request):
 
 @csrf_exempt
 def resend_veriffication_mail(request):
-    mail = request.POST['Emial']
+    mail = request.POST['email']
     mail = mail.lower()
     if is_Email_format(mail):
         if is_Email_used(mail):
@@ -551,10 +555,12 @@ def resend_veriffication_mail(request):
                 message = '.سلام {} عزیز \n برای فعال سازی اکانت ناردون خود روی لینک زیر کلیک کنید. چنانچه شما در ناردون ثبت نام نکرده اید این ایمیل را نادیده بگیرید \n {}'.format( mmbr.DisplayUserName , request.build_absolute_uri('/activate/')+'?ac='+code)
                 fmail = 'ali.jafari20@gmail.com'
                 send_mail(subject, message, fmail,[mail])
-                actv , created = activation.objects.get_or_create(email = mail , code = code)
-                if not created:
-                    actv.code = code
-                    actv.save()
+                actv = activation.objects.filter(email = mail)
+                if len(actv)>0:
+                    actv[0].code = code
+                    actv[0].save()
+                else:
+                    activation.objects.create(email = mail , code = code)
                 return JsonResponse({'Status':'0x0000'},encoder=JSONEncoder)
         else:
             return JsonResponse({'Status':'0x0009'},encoder=JSONEncoder)

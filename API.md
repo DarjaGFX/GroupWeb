@@ -242,7 +242,7 @@
     {{Domain}}/App/user/profile/ChangeForgetPass/
     
     input(string):
-        Email,
+        email,
         code,
         password,
 
