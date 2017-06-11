@@ -497,7 +497,7 @@ def forget_pass_request(request):
                 return JsonResponse({'Status':'0x000F'},encoder=JSONEncoder)                
             else:
                 u = user[0]
-                code = CreateToken()[:10]
+                code = CreateToken()[:4]
                 subject = 'ریست پسورد اکانت ناردون'
                 message = '.سلام {} عزیز \n برای ایجاد پسورد جدید از کد زیر استفاده کنید. {}'.format( u.DisplayUserName , code)
                 fmail = 'ali.jafari20@gmail.com'
@@ -526,7 +526,7 @@ def change_forgotten_password(request):
                     u = make_password(password , hasher='default' )
                     u.save()
                     req[0].delete()
-                    JsonResponse({'Status':'0x0000'},encoder=JSONEncoder)
+                    return JsonResponse({'Status':'0x0000'},encoder=JSONEncoder)
                 else:
                     return JsonResponse({'Status':'0x000B'},encoder=JSONEncoder)
             else:
