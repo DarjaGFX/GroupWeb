@@ -46,6 +46,20 @@
         Status,
 }
 
+
+# Check Forget PassWord Code{
+    {{Domain}}/App/user/profile/checkForgetPass/
+    POST
+
+    input(string):
+        email,
+        code,
+
+    output(JSON):
+        Status,
+}
+
+
 # resend veriffication Mail{
     {{Domain}}/App/user/profile/reactivate/
     POST

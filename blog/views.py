@@ -517,7 +517,7 @@ def forget_pass_request(request):
         return JsonResponse({'Status':'0x0010'},encoder=JSONEncoder)
 
 @csrf_exempt
-def change_forgotten_password(request):
+def change_forgotten_password(request):    
     mail = request.POST['email']
     code = request.POST['code']
     password = request.POST['password']
@@ -532,13 +532,34 @@ def change_forgotten_password(request):
                     req[0].delete()
                     return JsonResponse({'Status':'0x0000'},encoder=JSONEncoder)
                 else:
-                    return JsonResponse({'Status':'0x000B'},encoder=JSONEncoder)
+                    return JsonResponse({'Status':'0x0013'},encoder=JSONEncoder)
             else:
                 return JsonResponse({'Status':'0x0006'},encoder=JSONEncoder)
         else:
             return JsonResponse({'Status':'0x0009'},encoder=JSONEncoder)
     else:
         return JsonResponse({'Status':'0x0010'},encoder=JSONEncoder)
+
+@csrf_exempt
+def check_forgotten_password_code(request):
+    mail = request.POST['email']
+    code = request.POST['code']
+    if is_Email_format(mail.lower()):
+        if is_Email_used(mail.lower()):
+            u = members.objects.get(email = mail.lower())
+            if code:
+                req = forget_pass.objects.filter(code  = code ,email= u.email)
+                if len(req)>0:
+                    return JsonResponse({'Status':'0x0000'},encoder=JSONEncoder)
+                else:
+                    return JsonResponse({'Status':'0x0013'},encoder=JSONEncoder)
+            else:
+                return JsonResponse({'Status':'0x0006'},encoder=JSONEncoder)
+        else:
+            return JsonResponse({'Status':'0x0009'},encoder=JSONEncoder)
+    else:
+        return JsonResponse({'Status':'0x0010'},encoder=JSONEncoder)
+
 
 @csrf_exempt
 def resend_veriffication_mail(request):

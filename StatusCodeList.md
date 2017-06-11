@@ -73,3 +73,7 @@
 0x0012{
 	"Email Does Not Exists"
 }
+
+0x0013{
+	"invalid code"
+}
