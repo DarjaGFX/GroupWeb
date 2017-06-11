@@ -4,7 +4,6 @@ from . import views
 urlpatterns = [
     url(r'^activate/', views.activate , name = 'activate'),
     url(r'^App/user/profile/ForgetPass/', views.forget_pass_request , name = 'forget_pass_request'),
-    url(r'^App/user/profile/checkForgetPass/', views.check_forgotten_password_code , name = 'check_forgotten_password_code'),
     url(r'^App/user/profile/activate/', views.secondarymailactivate , name = 'secondarymailacticate'),
     url(r'^App/user/profile/reactivate/', views.resend_veriffication_mail , name = 'resend_veriffication_mail'),
     url(r'^App/user/profile/ChangeForgetPass/', views.change_forgotten_password , name = 'change_forgotten_password'),
@@ -36,6 +35,7 @@ urlpatterns = [
     url(r'^App/user/profile/set/' , views.App_EditProfile , name = 'App_EditProfile'),
 
     url(r'^App/check/mail/', views.MailAvailability , name = 'MailAvailability'),
+    url(r'^App/check/ForgetCode/', views.check_forgotten_password_code , name = 'check_forgotten_password_code'),
     # url(r'^App/email/' , views.test , name = 'test'),
     #url(r'^add/group/', views.addGroup , name = 'addGroup'),
     #url(r'^$', views.postListView.as_view(), name= 'post_list'),

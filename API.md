@@ -48,7 +48,7 @@
 
 
 # Check Forget PassWord Code{
-    {{Domain}}/App/user/profile/checkForgetPass/
+    {{Domain}}/App/check/ForgetCode/
     POST
 
     input(string):
