@@ -1,5 +1,6 @@
 *.pyc
 .vscode/
 blog/migrations/
-web/settings.py
+web/
+blog/static/
 db.sqlite3

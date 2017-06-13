@@ -33,7 +33,7 @@ def is_Email_format(mail):
 
 def is_Email_used(mail):
     arg = str(mail).lower()
-    user = members.objects.filter(email = arg)
+    user = User.objects.filter(email = arg)
     if len(user)>0:
         return True
     else:
@@ -78,10 +78,10 @@ def Narlogin(request):
     email = request.POST['email']
     PassWord = request.POST['npass']
     if is_Email_format(email):
-        user = members.objects.filter(email= email.lower() )
+        user = User.objects.filter(email= email.lower() )
         if len(user)>0 and check_password(PassWord , user[0].password):
-            if user[0].active:
-                return JsonResponse({'Status':'0x0000','Token':user[0].Token, },encoder=JSONEncoder)
+            if user[0].is_active:
+                return JsonResponse({'Status':'0x0000','Token':members.objects.get(user = user[0]).Token, },encoder=JSONEncoder)
             else:
                 return JsonResponse({'Status':'0x000F' },encoder=JSONEncoder)    
         else:
@@ -98,10 +98,10 @@ def NarSignUp(request):
     if PassWord and dispusn :
         if is_Email_format(email):
             if is_Email_used(email):
-                if members.objects.get(email = email).active:
-                    return JsonResponse({'Status':'0x000F',},encoder=JSONEncoder)
-                else:
+                if User.objects.get(email = email).is_active:
                     return JsonResponse({'Status':'0x0002',},encoder=JSONEncoder)
+                else:
+                    return JsonResponse({'Status':'0x000F',},encoder=JSONEncoder)
             else:
                 code = CreateToken()
                 subject = 'فعال سازی اکانت ناردون'
@@ -109,10 +109,23 @@ def NarSignUp(request):
                 fmail = 'ali.jafari20@gmail.com'
                 send_mail(subject, message, fmail,[email])
                 actv = activation.objects.create(email = email , code = code)
+                new_user = User.objects.create_user(
+                    username = email,
+                    email = email ,
+                    password = PassWord ,
+                    first_name = dispusn
+                    )
+                new_user.is_active = False
+                new_user.is_staff = False
+                try:
+                    gp = Group.objects.get(name = 'user')
+                except Group.DoesNotExist:
+                    Group.objects.create(name = 'user')
+                    gp = Group.objects.get(name = 'user')
+                new_user.groups.add(gp)
+                new_user.save()
                 new_member = members.objects.create(
-                    email=email.lower() ,
-                    password = PassWord , 
-                    DisplayUserName = dispusn ,
+                    user = new_user ,
                     Token = CreateToken() )
                 try:
                     img = UploadProPicForm(request.POST, request.FILES)
@@ -207,7 +220,7 @@ def addGroup(request):
     Token = request.POST['Token']
     user = members.objects.filter(Token = Token)
     if len(user) > 0:
-        if str(user[0].AccessLevel) == 'admin':
+        if str(user[0].user.groups.all()[0].name) == 'admin':
             if name !="" and desc != "":
                 ngr , created = NarGroups.objects.get_or_create(Name = name , description = desc)
                 try:
@@ -236,7 +249,7 @@ def addNewPost(request):
     status = request.POST['status']
     mmber = members.objects.filter(Token = Token)
     if len(mmber)>0:
-        if mmber[0].AccessLevel != 'user':
+        if mmber[0].user.groups.all()[0].name != 'user':
             author = mmber[0]
             if Title is not "" and Text is not ""  and status is not "":
                 if status is 'draft' or 'published':
@@ -286,60 +299,73 @@ def addcomment(request):
 @csrf_exempt
 def getAvailableGroups(request):
     Email = request.POST['Email']
-    user = members.objects.filter(email = Email.lower())
-    res = dict()
-    arr = []
-    if len(user)>0:
-        if user[0].AccessLevel == 'user':
-            return JsonResponse({'Status':'0x0007'},encoder=JSONEncoder)
-        elif user[0].AccessLevel == 'member':
-            gp = GroupMembers.objects.filter(user = user[0])
-            for n in gp :
-                tmp = dict()
-                tmp.update({'Name':str(n.group) , 'Logo':n.logo})
-                arr.append(tmp)    
-        elif user[0].AccessLevel == 'admin':
-            ng = NarGroups.objects.all()
-            for n in ng :
-                tmp = dict()
-                tmp.update({'Name':n.Name, 'Logo':n.logo})
-                arr.append(tmp)
+    if is_Email_format(email):           
+        if is_Email_used(email):
+            us = User.objects.filter(email = Email.lower())
+            user = members.objects.filter(user = us)
+            res = dict()
+            arr = []
+            if len(user)>0:
+                if user[0].user.groups.all()[0].name == 'user':
+                    return JsonResponse({'Status':'0x0007'},encoder=JSONEncoder)
+                elif user[0].user.groups.all()[0].name == 'member':
+                    gp = GroupMembers.objects.filter(user = user[0])
+                    for n in gp :
+                        tmp = dict()
+                        tmp.update({'Name':str(n.group) , 'Logo':n.logo})
+                        arr.append(tmp)    
+                elif user[0].user.groups.all()[0].name == 'admin':
+                    ng = NarGroups.objects.all()
+                    for n in ng :
+                        tmp = dict()
+                        tmp.update({'Name':n.Name, 'Logo':n.logo})
+                        arr.append(tmp)
+            else:
+                return JsonResponse({'Status':'0x0004'},encoder=JSONEncoder)
+            res.update({'Groups':arr})
+            return JsonResponse(res,encoder=JSONEncoder)
+        else:
+            return JsonResponse({'Status':'0x0000',},encoder=JSONEncoder)
     else:
-        return JsonResponse({'Status':'0x0004'},encoder=JSONEncoder)
-    res.update({'Groups':arr})
-    return JsonResponse(res,encoder=JSONEncoder)
-
+        return JsonResponse({'Status':'0x0010' },encoder=JSONEncoder)
 @csrf_exempt
 def setAvailableGroups(request):
     Token = request.POST['Token']
     admin = members.objects.filter(Token = Token)
     if len(admin)>0:
-        if admin[0].AccessLevel != 'admin':
+        if admin[0].user.groups.all()[0].name != 'admin':
             return JsonResponse({'Status':'0x0007'},encoder=JSONEncoder)
         else:
             un = request.POST['email']
             gp = request.POST['group']
             action = request.POST['action']
-            if un != "" and gp != "":
-                user = members.objects.filter(email = un.lower())
-                group = NarGroups.objects.filter(Name = gp)
-                if len(user)>0:
-                    if len(group)>0:
-                        if action == 'add':
-                            GroupMembers.objects.get_or_create(user = user[0] , group = group[0])
-                            return JsonResponse({'Status':'0x0000'},encoder=JSONEncoder)
-                        elif action == 'remove':
-                            x = GroupMembers.objects.filter(user = user[0] , group = group[0])
-                            x.delete()
-                            return JsonResponse({'Status':'0x0000'},encoder=JSONEncoder)
+            if is_Email_format(email):           
+                if is_Email_used(email):
+                    if gp != "":
+                        us = User.objects.get(email = un.lower())
+                        user = members.objects.filter(user = us)
+                        group = NarGroups.objects.filter(Name = gp)
+                        if len(user)>0:
+                            if len(group)>0:
+                                if action == 'add':
+                                    GroupMembers.objects.get_or_create(user = user[0] , group = group[0])
+                                    return JsonResponse({'Status':'0x0000'},encoder=JSONEncoder)
+                                elif action == 'remove':
+                                    x = GroupMembers.objects.filter(user = user[0] , group = group[0])
+                                    x.delete()
+                                    return JsonResponse({'Status':'0x0000'},encoder=JSONEncoder)
+                                else:
+                                    return JsonResponse({'Status':'0x000B'},encoder=JSONEncoder)
+                            else:
+                                return JsonResponse({'Status':'0x000A'},encoder=JSONEncoder)
                         else:
-                            return JsonResponse({'Status':'0x000B'},encoder=JSONEncoder)
+                            return JsonResponse({'Status':'0x0009'},encoder=JSONEncoder)   
                     else:
-                        return JsonResponse({'Status':'0x000A'},encoder=JSONEncoder)
+                        return JsonResponse({'Status':'0x0006'},encoder=JSONEncoder)
                 else:
-                    return JsonResponse({'Status':'0x0009'},encoder=JSONEncoder)   
+                    return JsonResponse({'Status':'0x0000',},encoder=JSONEncoder)
             else:
-                 return JsonResponse({'Status':'0x0006'},encoder=JSONEncoder)
+                return JsonResponse({'Status':'0x0010' },encoder=JSONEncoder)
     else:
         return JsonResponse({'Status':'0x0004'},encoder=JSONEncoder)
 
@@ -349,7 +375,7 @@ def App_LoadProfile(request):
     user = members.objects.filter(Token = Token)
     if len(user)>0:
         u = user[0]
-        res = {'propic':u.ProPic ,'Email':u.email , 'dispun':u.DisplayUserName , 'AccessLevel':u.AccessLevel}
+        res = {'propic':u.ProPic ,'Email':u.user.email , 'dispun':u.user.first_name , 'AccessLevel':u.user.groups.all()[0].name}
         return JsonResponse(res,encoder=JSONEncoder)
     else:
         return JsonResponse({'Status':'0x0004'},encoder=JSONEncoder)
@@ -367,7 +393,7 @@ def App_MemberProfileView(request):
             groups = dict()
             groups.update({'Name':g.group})
             grp.append(groups)
-        res = {'propic':u.ProPic ,'Email':u.email , 'dispun':u.DisplayUserName , 'AccessLevel':u.AccessLevel , 'Groups':grp}
+        res = {'propic':u.ProPic ,'Email':u.user.email , 'dispun':u.user.first_name , 'AccessLevel':u.user.groups.all()[0].name , 'Groups':grp}
         return JsonResponse(res,encoder=JSONEncoder)
     else:
         return JsonResponse({'Status':'0x0006'},encoder=JSONEncoder)
@@ -375,81 +401,86 @@ def App_MemberProfileView(request):
 @csrf_exempt
 def App_EditProfile(request):
     Token = request.POST['Token']
-    user = members.objects.filter(Token = Token , active = True)
+    user = members.objects.filter(Token = Token)
     if len(user)>0:
-        u = user[0]
-        arr = []
-        try:
-            img = UploadProPicForm(request.POST , request.FILES)  
-            if img.is_valid():
-                s = img.save(commit = False)
-                s.Token = Token
-                s.save()
-                name, ext = str(request.FILES['propic']).replace(' ','_').split('.')
-                u.propic =  request.build_absolute_uri('/blog/static/media/usr/{}/profilepicture/profile.'.format(Token)) + ext
+        if user[0].user.is_active:
+            u = user[0]
+            arr = []
+            try:
+                img = UploadProPicForm(request.POST , request.FILES)  
+                if img.is_valid():
+                    s = img.save(commit = False)
+                    s.Token = Token
+                    s.save()
+                    name, ext = str(request.FILES['propic']).replace(' ','_').split('.')
+                    u.propic =  request.build_absolute_uri('/blog/static/media/usr/{}/profilepicture/profile.'.format(Token)) + ext
+                    tmp = {'ProfilePicture':'0x0000'}
+                    arr.append(tmp)
+            except:
                 tmp = {'ProfilePicture':'0x0000'}
                 arr.append(tmp)
-        except:
-            tmp = {'ProfilePicture':'0x0000'}
-            arr.append(tmp)
-            
-        try:
-            newEmail = request.POST['email']
-            if not is_Email_format(newEmail.lower()):
-                tmp = {'Email':'0x0006'}
-                arr.append(tmp)
-            else:
-                if newEmail != u.email :
-                    if is_Email_used(newEmail.lower()):
-                        tmp = {'Email':'0x0002'}
-                        arr.append(tmp)
-                    else:
-                        code = CreateToken()
-                        subject = 'تغییر ایمیل اکانت ناردون'
-                        message = '.سلام {} عزیز \n برای تغببر اکانت ناردون خود روی لینک زیر کلیک کنید. {}'.format( u.DisplayUserName , request.build_absolute_uri('/App/user/profile/acticate/')+'?ac='+code)
-                        fmail = 'ali.jafari20@gmail.com'
-                        send_mail(subject, message, fmail,[newEmail])
-                        newmc = MailChange.objects.filter(primarymail= u.email , secondmail = newEmail.lower())
-                        if len(newmc)>0:
-                            newmc[0].code = code
-                            newmc[0].save()
+                
+            try:
+                newEmail = request.POST['email']
+                if not is_Email_format(newEmail.lower()):
+                    tmp = {'Email':'0x0006'}
+                    arr.append(tmp)
+                else:
+                    if newEmail != u.email :
+                        if is_Email_used(newEmail.lower()):
+                            tmp = {'Email':'0x0002'}
+                            arr.append(tmp)
                         else:
-                            MailChange.objects.create(code  = code ,primarymail= u.email , secondmail = newEmail.lower())
+                            code = CreateToken()
+                            subject = 'تغییر ایمیل اکانت ناردون'
+                            message = '.سلام {} عزیز \n برای تغببر اکانت ناردون خود روی لینک زیر کلیک کنید. {}'.format( u.user.first_name , request.build_absolute_uri('/App/user/profile/acticate/')+'?ac='+code)
+                            fmail = 'ali.jafari20@gmail.com'
+                            send_mail(subject, message, fmail,[newEmail])
+                            newmc = MailChange.objects.filter(primarymail= u.user.email , secondmail = newEmail.lower())
+                            if len(newmc)>0:
+                                newmc[0].code = code
+                                newmc[0].save()
+                            else:
+                                MailChange.objects.create(code  = code ,primarymail= u.user.email , secondmail = newEmail.lower())
+                            tmp = {'Email':'0x0000'}
+                            arr.append(tmp)
+                    else:
                         tmp = {'Email':'0x0000'}
                         arr.append(tmp)
-                else:
-                    tmp = {'Email':'0x0000'}
-                    arr.append(tmp)
-        except:
-            pass
-        try:
-            dispn = request.POST['dispun']
-            if dispn == "":
-                tmp = {'DisplayUName':'0x0006'}
-                arr.append(tmp)
-            else:
-                u.DisplayUserName = request.POST['dispun']
-                tmp = {'DisplayUName':'0x0000'}
-                arr.append(tmp)
-        except:
-            pass
-        try:
-            if check_password(request.POST['OldPass'] , u.password):
-                pwd = request.POST['NewPass']
-                if pwd == "":
-                    tmp = {'PassWord':'0x0006'}
+            except:
+                pass
+            try:
+                dispn = request.POST['dispun']
+                if dispn == "":
+                    tmp = {'DisplayUName':'0x0006'}
                     arr.append(tmp)
                 else:
-                    u.password = make_password(pwd , hasher='default')
-                    tmp = {'PassWord':'0x0000'}
+                    u.user.first_name = request.POST['dispun']
+                    u.user.save()
+                    tmp = {'DisplayUName':'0x0000'}
                     arr.append(tmp)
-            else:
-                tmp = {'PassWord':'0x000E'}
-                arr.append(tmp)
-        except:
-            pass
-        u.save()
-        return JsonResponse({'Status':arr},encoder=JSONEncoder)
+            except:
+                pass
+            try:
+                if check_password(request.POST['OldPass'] , u.user.password):
+                    pwd = request.POST['NewPass']
+                    if pwd == "":
+                        tmp = {'PassWord':'0x0006'}
+                        arr.append(tmp)
+                    else:
+                        u.user.password = make_password(pwd , hasher='default')
+                        u.user.save()
+                        tmp = {'PassWord':'0x0000'}
+                        arr.append(tmp)
+                else:
+                    tmp = {'PassWord':'0x000E'}
+                    arr.append(tmp)
+            except:
+                pass
+            u.save()
+            return JsonResponse({'Status':arr},encoder=JSONEncoder)
+        else:
+            return JsonResponse({'Status':'0x000F'},encoder=JSONEncoder)
     else:
         return JsonResponse({'Status':'0x0004'},encoder=JSONEncoder)
 
@@ -458,8 +489,8 @@ def activate(request):
     code = request.GET['ac']
     req = activation.objects.filter(code = code)
     if len(req)>0 :  # if code is in temporary db, read the data and create the user
-        mmbr = members.objects.get(email = req[0].email)
-        mmbr.active = True
+        mmbr = User.objects.get(email = req[0].email)
+        mmbr.is_active = True
         mmbr.save()
         req[0].delete()
         return JsonResponse({'message':'ok'},encoder=JSONEncoder)
@@ -470,7 +501,7 @@ def secondarymailactivate(request):
     code = request.GET['ac']
     updt = MailChange.objects.filter(code = code)
     if len(updt)>0:
-        mbr = members.objects.get(email = updt[0].primarymail)
+        mbr = User.objects.get(email = updt[0].primarymail)
         mbr.email = updt[0].secondmail
         mbr.save()
         updt[0].delete()
@@ -494,14 +525,16 @@ def forget_pass_request(request):
     mail = request.POST['email']
     if is_Email_format(mail.lower()):
         if is_Email_used(mail.lower()):
-            user = members.objects.filter(email = mail.lower() , active = True)
+            user = User.objects.filter(email = mail.lower())
             if not len(user)>0:
+                return JsonResponse({'Status':'0x0009'},encoder=JSONEncoder)                
+            elif not user[0].is_active:
                 return JsonResponse({'Status':'0x000F'},encoder=JSONEncoder)                
             else:
                 u = user[0]
                 code = CreateToken()[:4].upper()
                 subject = 'ریست پسورد اکانت ناردون'
-                message = '.سلام {} عزیز \n برای ایجاد پسورد جدید از کد زیر استفاده کنید.\n {}'.format( u.DisplayUserName , code)
+                message = '.سلام {} عزیز \n برای ایجاد پسورد جدید از کد زیر استفاده کنید.\n {}'.format( u.first_name , code)
                 fmail = 'ali.jafari20@gmail.com'
                 send_mail(subject, message, fmail,[mail])
                 newmc = forget_pass.objects.filter(email= u.email)
@@ -523,7 +556,7 @@ def change_forgotten_password(request):
     password = request.POST['password']
     if is_Email_format(mail.lower()):
         if is_Email_used(mail.lower()):
-            u = members.objects.get(email = mail.lower())
+            u = User.objects.get(email = mail.lower())
             if code and password:
                 req = forget_pass.objects.filter(code  = code ,email= u.email)
                 if len(req)>0:
@@ -546,7 +579,7 @@ def check_forgotten_password_code(request):
     code = request.POST['code']
     if is_Email_format(mail.lower()):
         if is_Email_used(mail.lower()):
-            u = members.objects.get(email = mail.lower())
+            u = User.objects.get(email = mail.lower())
             if code:
                 req = forget_pass.objects.filter(code  = code ,email= u.email)
                 if len(req)>0:
@@ -567,8 +600,8 @@ def resend_veriffication_mail(request):
     mail = mail.lower()
     if is_Email_format(mail):
         if is_Email_used(mail):
-            mmbr = members.objects.get(email = mail)
-            if mmbr.active:
+            mmbr = User.objects.get(email = mail)
+            if mmbr.is_active:
                 return JsonResponse({'Status':'0x0011'},encoder=JSONEncoder)
             else:
                 code = CreateToken()

@@ -6,10 +6,10 @@ class form_Group(forms.ModelForm):
         model  = NarGroups
         fields = ['Name','description']
 
-class form_SignUp(forms.ModelForm):
-    class Meta:
-        model  = members
-        fields = ["email","password","DisplayUserName"]
+# class form_SignUp(forms.ModelForm):
+#     class Meta:
+#         model  = members
+#         fields = ["email","password","DisplayUserName"]
 
 class form_comment(forms.ModelForm):
     class Meta:

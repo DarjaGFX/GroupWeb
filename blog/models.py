@@ -65,19 +65,20 @@ class NarGroups(models.Model):
         return self.Name
 
 class members(models.Model):
-    status          = (('user', 'User'),('member','Member'),('admin','Admin'))
+    user            = models.ForeignKey(User , related_name = 'member_user' , on_delete = models.CASCADE)
+    # status          = (('user', 'User'),('member','Member'),('admin','Admin'))
     Token           = models.CharField(max_length=20 , unique = True , default = CreateToken() )
     ProPic          = models.TextField(null = True , blank=True)
-    AccessLevel     = models.CharField(max_length = 10 , choices = status , default ='user' , verbose_name = "سطح کاربری")
-    email           = models.EmailField(null = False , blank=False, unique = True , verbose_name = "ایمیل")
-    password        = models.CharField(max_length=100 , null = False , verbose_name = "کلمه عبور")
-    DisplayUserName = models.CharField(max_length = 15 , null = False , verbose_name = "نام کاربری نمایشی")
-    created         = jmodels.jDateTimeField(auto_now_add = True)
-    active          = models.BooleanField(default= False)
+    # AccessLevel     = models.CharField(max_length = 10 , choices = status , default ='user' , verbose_name = "سطح کاربری")
+    # email           = models.EmailField(null = False , blank=False, unique = True , verbose_name = "ایمیل")
+    # password        = models.CharField(max_length=100 , null = False , verbose_name = "کلمه عبور")
+    # DisplayUserName = models.CharField(max_length = 15 , null = False , verbose_name = "نام کاربری نمایشی")
+    # created         = jmodels.jDateTimeField(auto_now_add = True)
+    # active          = models.BooleanField(default= False)
     def __str__(self):
-        return self.DisplayUserName
+        return self.user.first_name
     class Meta:
-        unique_together = ("email", "Token",)
+        unique_together = ("user", "Token",)
 
 class activation(models.Model):
     email = models.EmailField(null = False , unique = True )
