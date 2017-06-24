@@ -1,9 +1,9 @@
 from __future__ import unicode_literals
 from django.contrib.auth.models import User , Group
-import datetime
 from django.db import models
 from django.forms import ModelForm
 from django_jalali.db import models as jmodels
+import datetime
 import jdatetime
 import uuid
 
@@ -13,7 +13,7 @@ def CreateToken():
 
 def pro_pic_dir(instance, filename):
     name, ext = filename.split('.')
-    file_path = 'blog/static/media/usr/{}/profilepicture/profile.{}'.format(instance.Token,ext) 
+    file_path = 'blog/static/media/usr/{}/profilepicture/profile.{}.{}'.format(instance.Token , instance.uniqueID , ext) 
     return file_path
 
 def post_img_dir(instance, filename):
@@ -33,6 +33,7 @@ class GroupLogo(models.Model):
 
 class ProfilePicture(models.Model):
     Token        = models.CharField(max_length=20 , default = 1 )
+    uniqueID     = models.CharField(max_length=20 , default = 1 )
     propic       = models.ImageField("Image", upload_to= pro_pic_dir )
     upload_date  = jmodels.jDateTimeField(auto_now_add =True)
         

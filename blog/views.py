@@ -4,8 +4,9 @@ from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.hashers import make_password , check_password
 from .models import *
 from .forms import *
-from django.http import JsonResponse , HttpResponseRedirect
+from django.http import JsonResponse , HttpResponseRedirect , HttpResponse
 from json import JSONEncoder
+from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.core.mail import send_mail
@@ -40,7 +41,6 @@ def is_Email_used(mail):
         return False
 
 ############################################################
-
 def post_list(request):
     posts = Post.objects.filter(post_status = "published")
     return render(request , 'blog/post/list.html' , {'posts':posts})
@@ -76,6 +76,8 @@ def login_panel(request):
             user = User.objects.get(username = Email)
             if check_password(password , user.password):
                 return render(request , 'blog/post/list.html')
+            else:
+                return render(request , 'blog/panel/login.html' , {'form':form})
         except:
             return render(request , 'blog/post/detail.html')
     else:
@@ -427,14 +429,19 @@ def App_EditProfile(request):
                 img = UploadProPicForm(request.POST , request.FILES)  
                 if img.is_valid():
                     s = img.save(commit = False)
+                    uniqueID = CreateToken()
+                    s.uniqueID = uniqueID
                     s.Token = Token
                     s.save()
                     name, ext = str(request.FILES['propic']).replace(' ','_').split('.')
-                    u.propic =  request.build_absolute_uri('/blog/static/media/usr/{}/profilepicture/profile.'.format(Token)) + ext
+                    u.ProPic =  request.build_absolute_uri('/blog/static/media/usr/{}/profilepicture/profile.{}.'.format(Token,uniqueID)) + ext
+                    u.save()
                     tmp = {'ProfilePicture':'0x0000'}
                     arr.append(tmp)
             except:
-                tmp = {'ProfilePicture':'0x0000'}
+                u.ProPic = ''
+                u.save()
+                tmp = {'ProfilePicture':'0x0003'}
                 arr.append(tmp)
                 
             try:
