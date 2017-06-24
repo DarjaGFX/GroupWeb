@@ -6,6 +6,7 @@ from .models import *
 from .forms import *
 from django.http import JsonResponse , HttpResponseRedirect , HttpResponse
 from json import JSONEncoder
+from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
@@ -53,7 +54,7 @@ def addGroupform(request):
     form = form_Group()
     # if form.is_valid():
     return render(request , "blog/base.html" , {"form":form})
-    
+
 def post_detail(request,idd):
     post = Post.objects.filter(post_id = idd)
     comments = Comment.objects.filter(active = True , post = post[0] )
@@ -73,8 +74,9 @@ def login_panel(request):
         Email = form.cleaned_data['user']
         password = form.cleaned_data['password']
         try:
-            user = User.objects.get(username = Email)
-            if check_password(password , user.password):
+            user = auth.authenticate(username=Email, password=password)
+            if user != None:
+                auth.login(request, user)
                 return render(request , 'blog/post/list.html')
             else:
                 return render(request , 'blog/panel/login.html' , {'form':form})
@@ -438,11 +440,13 @@ def App_EditProfile(request):
                     u.save()
                     tmp = {'ProfilePicture':'0x0000'}
                     arr.append(tmp)
+                else:
+                    u.ProPic = ''
+                    u.save()
+                    tmp = {'ProfilePicture':'0x0003'}
+                    arr.append(tmp)
             except:
-                u.ProPic = ''
-                u.save()
-                tmp = {'ProfilePicture':'0x0003'}
-                arr.append(tmp)
+                pass
                 
             try:
                 newEmail = request.POST['email']
