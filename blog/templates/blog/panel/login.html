@@ -1,0 +1,14 @@
+{% extends "blog/base.html" %}
+
+{% block title %}ورود{% endblock %}
+
+{% block content %}
+test user:
+ali</br>
+test pass:
+1
+        <form method="POST" action=""> {% csrf_token %}
+			{{form.as_p}}
+			<input type="submit" value="ورود" />
+        </form>
+{% endblock %}

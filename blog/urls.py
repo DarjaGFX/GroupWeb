@@ -11,6 +11,7 @@ urlpatterns = [
     # WebSite views
     url(r'^$', views.post_list , name = 'post_list'),
     url(r'^(?P<idd>\d+)/$',views.post_detail, name = 'post_detail'),
+    url(r'^login/$',views.login_panel, name = 'login_panel'),
     
     
     

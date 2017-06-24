@@ -66,7 +66,21 @@ def post_detail(request,idd):
         new_comment , created = Comment.objects.get_or_create( member = mmbr , Text = text , post = post[0] )
     return render(request,'blog/post/detail.html',{'post':post[0],'comments':comments , 'form':form})
 
-
+@csrf_exempt
+def login_panel(request):
+    form = form_login(request.POST or None)
+    if form.is_valid():
+        Email = form.cleaned_data['user']
+        password = form.cleaned_data['password']
+        try:
+            user = User.objects.get(username = Email)
+            if check_password(password , user.password):
+                return render(request , 'blog/post/list.html')
+        except:
+            return render(request , 'blog/post/detail.html')
+    else:
+        return render(request , 'blog/panel/login.html' , {'form':form})
+    
 
 # ########## #
 # App Views# #
@@ -80,7 +94,7 @@ def Narlogin(request):
     if is_Email_format(email):
         user = User.objects.filter(email= email.lower() )
         if len(user)>0 and check_password(PassWord , user[0].password):
-            if user[0].is_active:
+            if user[0].is_active and user[0].is_authenticated():
                 return JsonResponse({'Status':'0x0000','Token':members.objects.get(user = user[0]).Token, },encoder=JSONEncoder)
             else:
                 return JsonResponse({'Status':'0x000F' },encoder=JSONEncoder)    
@@ -139,7 +153,10 @@ def NarSignUp(request):
                         new_member.save()
                 except:
                     pass
-                return JsonResponse({'Status':'0x0000',},encoder=JSONEncoder)
+                if new_user.is_authenticated():
+                    return JsonResponse({'Status':'0x0000',},encoder=JSONEncoder)
+                else:
+                    return JsonResponse({'Status':'0x0003',},encoder=JSONEncoder)
         else:
             return JsonResponse({'Status':'0x0010',},encoder=JSONEncoder)
     else:
