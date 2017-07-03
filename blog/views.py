@@ -96,10 +96,10 @@ def Narlogin(request):
     email = request.POST['email']
     PassWord = request.POST['npass']
     if is_Email_format(email):
-        user = User.objects.filter(email= email.lower() )
-        if len(user)>0 and check_password(PassWord , user[0].password):
-            if user[0].is_active and user[0].is_authenticated():
-                return JsonResponse({'Status':'0x0000','Token':members.objects.get(user = user[0]).Token, },encoder=JSONEncoder)
+        user = auth.authenticate(username = email , password = PassWord)
+        if user is not None:
+            if user.is_active:
+                return JsonResponse({'Status':'0x0000','Token':members.objects.get(user = user).Token, },encoder=JSONEncoder)
             else:
                 return JsonResponse({'Status':'0x000F' },encoder=JSONEncoder)    
         else:
@@ -110,7 +110,8 @@ def Narlogin(request):
 @csrf_exempt
 @require_POST
 def NarSignUp(request):
-    PassWord = make_password(request.POST['npass'], hasher='default')
+    # PassWord = make_password(request.POST['npass'], hasher='default')
+    PassWord = request.POST['npass']
     email    = request.POST['nemail']
     dispusn  = request.POST['ndispn']
     if PassWord and dispusn :
@@ -125,13 +126,14 @@ def NarSignUp(request):
                 subject = 'فعال سازی اکانت ناردون'
                 message = '.سلام {} عزیز \n برای فعال سازی اکانت ناردون خود روی لینک زیر کلیک کنید. چنانچه شما در ناردون ثبت نام نکرده اید این ایمیل را نادیده بگیرید \n {}'.format( dispusn , request.build_absolute_uri('/activate/')+'?ac='+code)
                 fmail = 'ali.jafari20@gmail.com'
-                send_mail(subject, message, fmail,[email])
+                print(message)
+                # send_mail(subject, message, fmail,[email])
                 actv = activation.objects.create(email = email , code = code)
                 new_user = User.objects.create_user(
                     username = email,
                     email = email ,
                     password = PassWord ,
-                    first_name = dispusn
+                    first_name = dispusn,
                     )
                 new_user.is_active = False
                 new_user.is_staff = False
@@ -148,11 +150,13 @@ def NarSignUp(request):
                 try:
                     img = UploadProPicForm(request.POST, request.FILES)
                     if img.is_valid():
+                        uniqueID = CreateToken()
                         b4save = img.save(commit = False)
                         b4save.Token = new_member.Token
+                        b4save.uniqueID = uniqueID
                         b4save.save()  
                         name, ext = str(request.FILES['propic']).replace(' ','_').split('.')
-                        domain = request.build_absolute_uri('/blog/static/media/usr/{}/profilepicture/profile.'.format(new_member.Token)) + ext
+                        domain = request.build_absolute_uri('/blog/static/media/usr/{}/profilepicture/profile.{}.'.format(new_member.Token,uniqueID)) + ext
                         new_member.ProPic = domain
                         new_member.save()
                 except:
@@ -208,7 +212,7 @@ def GroupPosts(request):
             'Id'     : post[j].post_id , 
             'Image'  : post[j].ImageUrl ,
             'Title'  : post[j].Title ,
-            'author' : post[j].author.DisplayUserName , 
+            'author' : post[j].author.user.first_name , 
             'Text'   : post[j].Text , 
             'Date'   : str(post[j].publish.year)+'/'+str(post[j].publish.month)+'/'+str(post[j].publish.day) , 
             'Time'   : str(post[j].publish.hour)+":"+str(post[j].publish.minute)
@@ -247,16 +251,65 @@ def addGroup(request):
                 try:
                     img = UploadlogoForm(request.POST, request.FILES)       
                     if img.is_valid():
-                        img.save()  
-                        domain = request.build_absolute_uri('/blog/static/media/GroupLogo/') + str(request.FILES['pic']).replace(' ','_')
-                        #TODO: rename uploaded image to a meaningful name !
-                    ngr.logo = domain
+                        uniqueID = CreateToken()
+                        b4save = img.save(commit = False)
+                        b4save.Name = name
+                        b4save.uniqueID = uniqueID
+                        b4save.save()  
+                        picname, ext = str(request.FILES['pic']).replace(' ','_').split('.')
+                        domain = request.build_absolute_uri('/blog/static/media/GroupLogo/{}/logo.{}.'.format(name , uniqueID)) + ext 
+                        ngr.logo = domain
+                        ngr.save()
                 except:
                     pass
                 ngr.save()
                 return JsonResponse({'Status':'0x0000'} ,encoder=JSONEncoder)
             else:
                 return JsonResponse({'Status':'0x0006'} ,encoder=JSONEncoder)
+        else:
+            return JsonResponse({'Status':'0x0007'} ,encoder=JSONEncoder)
+    else:
+        return JsonResponse({'Status':'0x0004'} ,encoder=JSONEncoder)
+
+@csrf_exempt
+def App_EditGroup(request):
+    name = request.POST['Name'] 
+    Token = request.POST['Token']
+    user = members.objects.filter(Token = Token)
+    if len(user) > 0:
+        if str(user[0].user.groups.all()[0].name) == 'admin':
+            try:
+                ngr = NarGroups.objects.get(Name = name)
+                try:
+                    img = UploadlogoForm(request.POST, request.FILES)       
+                    if img.is_valid():
+                        uniqueID = CreateToken()
+                        b4save = img.save(commit = False)
+                        b4save.Name = name
+                        b4save.uniqueID = uniqueID
+                        b4save.save()  
+                        picname, ext = str(request.FILES['pic']).replace(' ','_').split('.')
+                        domain = request.build_absolute_uri('/blog/static/media/GroupLogo/{}/logo.{}.'.format(name , uniqueID)) + ext 
+                        ngr.logo = domain
+                        ngr.save()
+                except:
+                    pass
+                try:
+                    description = request.POST['description'] 
+                    ngr.description = description
+                    ngr.save()
+                except:
+                    pass
+                try:
+                    newname = request.POST['NewName'] 
+                    ngr.Name = newname
+                    ngr.save()
+                except expression as identifier:
+                    pass
+                ngr.save()
+                return JsonResponse({'Status':'0x0000'} ,encoder=JSONEncoder)
+            except NarGroups.DoesNotExist:
+                return JsonResponse({'Status':'0x0014'} ,encoder=JSONEncoder)
         else:
             return JsonResponse({'Status':'0x0007'} ,encoder=JSONEncoder)
     else:
@@ -634,7 +687,7 @@ def resend_veriffication_mail(request):
             else:
                 code = CreateToken()
                 subject = 'فعال سازی اکانت ناردون'
-                message = '.سلام {} عزیز \n برای فعال سازی اکانت ناردون خود روی لینک زیر کلیک کنید. چنانچه شما در ناردون ثبت نام نکرده اید این ایمیل را نادیده بگیرید \n {}'.format( mmbr.DisplayUserName , request.build_absolute_uri('/activate/')+'?ac='+code)
+                message = '.سلام {} عزیز \n برای فعال سازی اکانت ناردون خود روی لینک زیر کلیک کنید. چنانچه شما در ناردون ثبت نام نکرده اید این ایمیل را نادیده بگیرید \n {}'.format( mmbr.first_name , request.build_absolute_uri('/activate/')+'?ac='+code)
                 fmail = 'ali.jafari20@gmail.com'
                 send_mail(subject, message, fmail,[mail])
                 actv = activation.objects.filter(email = mail)

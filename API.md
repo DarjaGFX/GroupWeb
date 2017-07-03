@@ -240,13 +240,27 @@
 }
 
 # Set new Group{
-    {{Domain}}/App/Group/set/
+    {{Domain}}/App/Group/add/
     
     input(image , string):
         Token,
         pic,
         Name,
         description,
+
+    output(JSON):
+        Status,
+}
+
+# Edit Group{
+    {{Domain}}/App/Group/set/
+    
+    input(image , string):
+        Token,
+        Name,
+        pic (optional),
+        description (optional),
+        NewName (optional)
 
     output(JSON):
         Status,

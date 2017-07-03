@@ -22,14 +22,15 @@ def post_img_dir(instance, filename):
     return file_path
 
 def group_logo_dir(instance, filename):
-    name, ext = filename.split('.')
-    file_path = 'blog/static/media/GroupLogo/{}/logo.{}'.format(instance.Name,ext) 
+    picname, ext = filename.split('.')
+    file_path = 'blog/static/media/GroupLogo/{}/logo.{}.{}'.format(instance.Name,instance.uniqueID,ext) 
     return file_path
 
 class GroupLogo(models.Model):
-    Name = models.CharField(max_length=150 , null = False )
-    pic = models.ImageField("Image", upload_to=group_logo_dir)
-    upload_date= jmodels.jDateTimeField(auto_now_add =True)
+    Name        = models.CharField(max_length=150 , null = False )
+    uniqueID    = models.CharField(max_length=20 , default = 1 )
+    pic         = models.ImageField("Image", upload_to=group_logo_dir)
+    upload_date = jmodels.jDateTimeField(auto_now_add =True)
 
 class ProfilePicture(models.Model):
     Token        = models.CharField(max_length=20 , default = 1 )

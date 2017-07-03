@@ -77,3 +77,7 @@
 0x0013{
 	"invalid code"
 }
+
+0x0014{
+	"Group Does Not Exist"
+}

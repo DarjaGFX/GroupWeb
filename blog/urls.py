@@ -27,10 +27,12 @@ urlpatterns = [
     url(r'^App/Comments/set/' , views.addcomment , name = 'addcomment'),
     
     url(r'^App/Group/get/', views.fetchGroupNames , name = 'fetchGroupNames'),
-    url(r'^App/Group/set/', views.addGroup , name = 'addGroup'),
+    url(r'^App/Group/add/', views.addGroup , name = 'addGroup'),
+    url(r'^App/Group/set/', views.App_EditGroup , name = 'App_EditGroup'),
     
     url(r'^App/user/groups/get/' , views.getAvailableGroups , name = 'getAvailableGroups'),
     url(r'^App/user/groups/set/' , views.setAvailableGroups , name = 'setAvailableGroups'),
+    
     url(r'^App/user/profile/get/' , views.App_LoadProfile , name = 'App_LoadProfile'),
     url(r'^App/user/profile/member/' , views.App_MemberProfileView , name = 'App_MemberProfileView'),
     url(r'^App/user/profile/set/' , views.App_EditProfile , name = 'App_EditProfile'),
