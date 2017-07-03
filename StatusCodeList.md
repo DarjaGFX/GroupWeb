@@ -81,3 +81,7 @@
 0x0014{
 	"Group Does Not Exist"
 }
+
+0x0015{
+	"Group Already Exists"
+}

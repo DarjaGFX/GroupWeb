@@ -1,0 +1,10 @@
+{% extends "blog/base.html" %}
+
+{% block title %}پنل{% endblock %}
+
+{% block content %}
+        <form method="POST" action=""> {% csrf_token %}
+			<img src="{{ProPic}}" width="80" height="100"/>
+            {{Name}}
+        </form>
+{% endblock %}

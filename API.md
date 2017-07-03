@@ -244,7 +244,7 @@
     
     input(image , string):
         Token,
-        pic,
+        pic (optional),
         Name,
         description,
 
